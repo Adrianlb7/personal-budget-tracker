@@ -24,8 +24,8 @@ This repository follows a spec-driven development workflow. Do not implement bro
 - [Testing](docs/TESTING.md)
 - [Roadmap](docs/ROADMAP.md)
 - [Open Questions](docs/OPEN_QUESTIONS.md)
+- [Development Process](docs/DEVELOPMENT_PROCESS.md)
 
 ## Development Rule
 
 Each feature should start from a spec under `specs/`, then move through plan, tasks, implementation, and verification. Financial behavior must be covered by deterministic tests before it is treated as complete.
-
