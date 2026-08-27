@@ -7,27 +7,43 @@ Every feature should move through this route:
 1. Spec drafted in `specs/<number>-<feature>/SPEC.md`.
 2. Implementation approach written in `PLAN.md`.
 3. Work split into checkable items in `TASKS.md`.
-4. GitHub issue created from the relevant spec.
-5. Branch created with the `codex/` prefix.
-6. Implementation completed with tests.
-7. Pull request reviewed against acceptance criteria.
-8. Merged after verification.
+4. GitHub issue created from the relevant spec and placed in Backlog.
+5. Issue moved to Ready when the scope is clear.
+6. Branch created with the `codex/` prefix.
+7. Implementation completed with tests while the issue is In Progress.
+8. Pull request opened and moved to In Review.
+9. Merged after verification and moved to Done.
 
 ## Recommended GitHub Project
 
-Create a GitHub Project named `Personal Finance Hub Development`.
+Use the GitHub Project board linked to this repository.
+
+Board columns:
+
+- Backlog
+- Ready
+- In Progress
+- In Review
+- Done
 
 Suggested fields:
 
-- Status: Inbox, Spec Review, Ready, In Progress, Verification, Done, Blocked
 - Phase: 001 through 013
 - Type: Spec, Feature, Bug, Chore, Test, Documentation
 - Priority: P0, P1, P2, P3
 
+Suggested issue flow:
+
+- Backlog: captured work that is not ready to start.
+- Ready: scoped work with clear acceptance criteria.
+- In Progress: active implementation branch exists.
+- In Review: pull request or review checkpoint is active.
+- Done: merged or otherwise completed and verified.
+
 Suggested views:
 
 - Roadmap: grouped by Phase
-- Active Work: filtered to Ready, In Progress, Verification, Blocked
+- Active Work: filtered to Ready, In Progress, In Review
 - Specs: filtered to Type = Spec
 - Testing: filtered to Type = Test
 
@@ -54,4 +70,3 @@ codex/003-accounts-schema-rls
 - RLS and ownership behavior are covered where data access changed.
 - No secrets or personal financial data are committed.
 - Documentation is updated when behavior changes.
-
