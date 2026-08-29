@@ -9,6 +9,7 @@ out/
 coverage/
 test-results/
 playwright-report/
+*.tsbuildinfo
 
 # local env files
 .env
@@ -23,4 +24,3 @@ pnpm-debug.log*
 
 # system files
 .DS_Store
-
