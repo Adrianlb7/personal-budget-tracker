@@ -53,10 +53,19 @@ Open [http://localhost:3000](http://localhost:3000). The Phase 001 placeholder d
 ```text
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-Never expose the service-role key to client code or commit a populated environment file.
+Find these values in your Supabase project's API settings. Never expose a service-role or secret key to client code, and never commit a populated environment file.
+
+### Supabase authentication setup
+
+1. Create or open your Supabase project.
+2. Copy `.env.example` to `.env.local` and enter the project URL and anon key.
+3. Apply `supabase/migrations/20260829113000_create_profiles.sql` through the Supabase SQL editor or your configured Supabase CLI workflow.
+4. Create your personal user under Authentication → Users in the Supabase dashboard.
+5. Start the app and sign in at [http://localhost:3000/sign-in](http://localhost:3000/sign-in).
+
+The profile migration creates a private profile automatically for every new Auth user. Its RLS policies permit authenticated users to read and update only their own profile.
 
 ### Verification
 

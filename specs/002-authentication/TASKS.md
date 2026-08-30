@@ -1,10 +1,9 @@
 # 002 Authentication Tasks
 
-- [ ] Create Supabase auth helpers.
-- [ ] Build sign-in UI.
-- [ ] Build sign-out action.
-- [ ] Protect app routes.
-- [ ] Add profile migration.
-- [ ] Enable profile RLS.
-- [ ] Test authenticated and unauthenticated behavior.
-
+- [x] Create Supabase auth helpers.
+- [x] Build sign-in UI.
+- [x] Build sign-out action.
+- [x] Protect app routes.
+- [x] Add profile migration.
+- [x] Enable profile RLS.
+- [x] Test authenticated and unauthenticated behavior.

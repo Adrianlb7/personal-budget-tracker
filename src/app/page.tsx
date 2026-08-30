@@ -20,9 +20,9 @@ export default function HomePage() {
         </p>
         <Link
           className="mt-10 inline-flex items-center gap-2 rounded-full bg-emerald-900 px-6 py-3 font-medium text-white transition hover:bg-emerald-800"
-          href="/app"
+          href="/sign-in"
         >
-          Preview the app shell
+          Sign in
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
       </section>

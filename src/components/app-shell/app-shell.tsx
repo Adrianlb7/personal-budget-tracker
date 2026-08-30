@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
+import { SignOutButton } from "@/components/auth/sign-out-button";
 
 const navigation = [
   "Dashboard",
@@ -10,7 +11,10 @@ const navigation = [
   "Recurring",
 ];
 
-export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
+export function AppShell({
+  children,
+  userEmail,
+}: Readonly<{ children: ReactNode; userEmail: string | null }>) {
   return (
     <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
       <aside className="border-b bg-white p-6 md:min-h-screen md:border-r md:border-b-0">
@@ -30,6 +34,14 @@ export function AppShell({ children }: Readonly<{ children: ReactNode }>) {
             </span>
           ))}
         </nav>
+        <div className="mt-10 hidden border-t pt-5 md:block">
+          {userEmail && (
+            <p className="mb-2 truncate px-3 text-xs text-neutral-500">
+              {userEmail}
+            </p>
+          )}
+          <SignOutButton />
+        </div>
       </aside>
       <main className="p-6 sm:p-10">{children}</main>
     </div>
