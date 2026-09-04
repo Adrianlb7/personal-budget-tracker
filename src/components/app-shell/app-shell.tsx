@@ -17,7 +17,7 @@ export function AppShell({
 }: Readonly<{ children: ReactNode; userEmail: string | null }>) {
   return (
     <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
-      <aside className="border-b bg-white p-6 md:min-h-screen md:border-r md:border-b-0">
+      <aside className="border-b border-black/[0.06] bg-white/90 p-6 backdrop-blur-xl md:sticky md:top-0 md:h-screen md:border-r md:border-b-0">
         <Link className="flex items-center gap-3 font-semibold" href="/">
           <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-900 text-white">
             <Landmark aria-hidden="true" className="size-5" />
@@ -44,7 +44,7 @@ export function AppShell({
           <SignOutButton />
         </div>
       </aside>
-      <main className="p-6 sm:p-10">{children}</main>
+      <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
     </div>
   );
 }

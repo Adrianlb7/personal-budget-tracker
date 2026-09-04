@@ -1,9 +1,8 @@
 # 006 Dashboard Tasks
 
-- [ ] Build sidebar app shell.
-- [ ] Build net worth summary.
-- [ ] Build account breakdown.
-- [ ] Build monthly metrics.
-- [ ] Build upcoming commitments list.
-- [ ] Add responsive checks.
-
+- [x] Build sidebar app shell.
+- [x] Build net worth summary.
+- [x] Build account breakdown.
+- [x] Build monthly metrics.
+- [x] Build upcoming commitments list.
+- [x] Add responsive checks.
