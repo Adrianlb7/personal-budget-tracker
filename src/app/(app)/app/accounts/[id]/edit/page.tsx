@@ -16,7 +16,7 @@ export default async function EditAccountPage({
   const { data, error } = await supabase
     .from("account_details")
     .select(
-      "id,user_id,name,type,currency,opening_balance,archived_at,created_at,updated_at",
+      "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
     )
     .eq("id", id)
     .eq("user_id", user.id)

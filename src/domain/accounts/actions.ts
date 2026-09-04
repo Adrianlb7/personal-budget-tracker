@@ -91,3 +91,28 @@ export async function archiveAccount(accountId: string) {
 
   revalidatePath("/app/accounts");
 }
+
+export async function restoreAccount(accountId: string) {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("accounts")
+    .update({ archived_at: null })
+    .eq("id", accountId)
+    .eq("user_id", user.id);
+  if (error) throw new Error("The account could not be restored.");
+  revalidatePath("/app/accounts");
+}
+
+export async function deleteAccount(accountId: string) {
+  await requireUser();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("delete_empty_account", {
+    p_account_id: accountId,
+  });
+  if (error || !data)
+    throw new Error(
+      "Only accounts without transaction history can be deleted.",
+    );
+  revalidatePath("/app/accounts");
+}

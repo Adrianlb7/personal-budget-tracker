@@ -3,7 +3,7 @@
 ## Product
 
 - Should the first MVP allow manual balance adjustments, or should all corrections be reversal/adjustment transactions?
-- Should account deletion be blocked once transactions exist?
+- Resolved in Phase 004: account deletion is blocked once transactions exist; archive or restore preserves financial history.
 - Should categories be flat initially, or should parent/child categories ship in the first version?
 - Should budgets support multiple currencies in the same month, or only the user's base currency initially?
 - Should credit/debt accounts be included in MVP or deferred until external installment behavior is clearer?
@@ -25,4 +25,3 @@
 
 - Are monthly snapshots created automatically at month close, manually, or both?
 - Should reports use transaction date, creation date, or posted date once imports are introduced?
-

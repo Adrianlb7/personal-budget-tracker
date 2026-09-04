@@ -1,11 +1,10 @@
 # 004 Transactions Tasks
 
-- [ ] Add category schema.
-- [ ] Add transaction schema.
-- [ ] Add transaction line schema.
-- [ ] Add RLS policies.
-- [ ] Add income form.
-- [ ] Add expense form.
-- [ ] Add transaction list.
-- [ ] Add domain tests.
-
+- [x] Add category schema.
+- [x] Add transaction schema.
+- [x] Add transaction line schema.
+- [x] Add RLS policies.
+- [x] Add income form.
+- [x] Add expense form.
+- [x] Add transaction list.
+- [x] Add domain tests.

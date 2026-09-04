@@ -1,5 +1,14 @@
 import Link from "next/link";
-import { CreditCard, Landmark, PiggyBank, WalletCards } from "lucide-react";
+import {
+  CreditCard,
+  Landmark,
+  PiggyBank,
+  RotateCcw,
+  Trash2,
+  WalletCards,
+} from "lucide-react";
+import { ConfirmActionButton } from "@/components/shared/confirm-action-button";
+import { deleteAccount, restoreAccount } from "@/domain/accounts/actions";
 import { calculateAccountBalance } from "@/domain/accounts/balance";
 import {
   accountTypeLabels,
@@ -19,7 +28,9 @@ const icons = {
 
 export function AccountCard({ account }: { account: Account }) {
   const Icon = icons[account.type];
-  const balance = calculateAccountBalance(account.opening_balance, []);
+  const balance =
+    account.current_balance ??
+    calculateAccountBalance(account.opening_balance, []);
 
   return (
     <article className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -56,6 +67,25 @@ export function AccountCard({ account }: { account: Account }) {
         </Link>
         {!account.archived_at && (
           <ArchiveAccountButton accountId={account.id} />
+        )}
+        {account.archived_at && (
+          <>
+            <form action={restoreAccount.bind(null, account.id)}>
+              <button
+                className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-neutral-600 hover:bg-neutral-100"
+                type="submit"
+              >
+                <RotateCcw aria-hidden="true" className="size-4" /> Restore
+              </button>
+            </form>
+            <ConfirmActionButton
+              action={deleteAccount.bind(null, account.id)}
+              className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-red-700 hover:bg-red-50"
+              confirmation={`Permanently delete ${account.name}? This only works if it has no transaction history.`}
+            >
+              <Trash2 aria-hidden="true" className="size-4" /> Delete
+            </ConfirmActionButton>
+          </>
         )}
       </div>
     </article>

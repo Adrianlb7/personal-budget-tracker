@@ -22,6 +22,7 @@ export type Currency = (typeof currencies)[number];
 export type Account = {
   archived_at: string | null;
   created_at: string;
+  current_balance?: string;
   currency: Currency;
   id: string;
   name: string;
