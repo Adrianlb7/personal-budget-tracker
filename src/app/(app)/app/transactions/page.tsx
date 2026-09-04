@@ -108,9 +108,13 @@ export default async function TransactionsPage() {
                     {transaction.description}
                   </h2>
                   <p className="truncate text-sm text-neutral-500">
-                    {transfer
-                      ? `${transaction.account_name} → ${transaction.destination_account_name}`
-                      : `${transaction.category_name} · ${transaction.account_name}`}{" "}
+                    {transaction.metadata.recurring_kind === "installment"
+                      ? `Installment · ${transaction.account_name} → ${transaction.destination_account_name}`
+                      : transaction.metadata.recurring_kind === "subscription"
+                        ? `Subscription · ${transaction.account_name}`
+                        : transfer
+                          ? `${transaction.account_name} → ${transaction.destination_account_name}`
+                          : `${transaction.category_name} · ${transaction.account_name}`}{" "}
                     · {formatDate(transaction.date)}
                   </p>
                 </div>

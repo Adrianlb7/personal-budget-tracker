@@ -17,9 +17,9 @@
 
 ## Recurring and Reimbursements
 
-- Should recurring commitments auto-create transactions, or only prompt the user to confirm them?
+- Resolved in Phase 007: commitments create transactions only when the user presses Pay. Subscriptions create expenses; installment repayments create internal transfers to savings.
 - Can a savings reimbursement plan be paused or edited after installments have started?
-- Should external installments count as expenses when paid, or should they link to an original financed purchase if the purchase already happened?
+- Resolved in Phase 007: the original purchase is the expense; installment repayments replenish savings through internal transfers and never duplicate spending.
 
 ## Reporting
 

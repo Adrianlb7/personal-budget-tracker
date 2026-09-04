@@ -7,17 +7,19 @@ import {
   Landmark,
   PiggyBank,
   Sparkles,
-  TrendingUp,
   WalletCards,
 } from "lucide-react";
+import { BalanceOverviewCard } from "@/components/dashboard/balance-overview-card";
 import { SpendingChart } from "@/components/dashboard/spending-chart";
 import type { Account, Currency } from "@/domain/accounts/types";
 import {
+  calculateAvailableByCurrency,
   calculateMonthlyMetrics,
   calculateNetWorthByCurrency,
   calculateSpendingTrend,
   calculateWeeklySpendingTrend,
 } from "@/domain/dashboard/calculations";
+import type { RecurringCommitment } from "@/domain/recurring/types";
 import type { TransactionDetail } from "@/domain/transactions/types";
 import { requireUser } from "@/lib/auth/require-user";
 import { formatMoney } from "@/lib/money/format";
@@ -28,8 +30,8 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const months = recentMonths(6);
   const weeks = recentWeeks(6);
-  const [accountsResult, transactionsResult, profileResult] = await Promise.all(
-    [
+  const [accountsResult, transactionsResult, profileResult, recurringResult] =
+    await Promise.all([
       supabase
         .from("account_details")
         .select(
@@ -51,20 +53,28 @@ export default async function DashboardPage() {
         .select("display_currency")
         .eq("id", user.id)
         .maybeSingle(),
-    ],
-  );
+      supabase
+        .from("recurring_commitments")
+        .select(
+          "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+        )
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("next_due_on")
+        .limit(3),
+    ]);
 
-  if (accountsResult.error || transactionsResult.error)
+  if (accountsResult.error || transactionsResult.error || recurringResult.error)
     throw new Error("Your dashboard could not be loaded.");
   const accounts = (accountsResult.data ?? []) as Account[];
   const transactions = (transactionsResult.data ?? []) as TransactionDetail[];
+  const upcoming = (recurringResult.data ?? []) as RecurringCommitment[];
   const profileCurrency = profileResult.data?.display_currency;
   const preferredCurrency = isCurrency(profileCurrency)
     ? profileCurrency
     : (accounts[0]?.currency ?? "USD");
   const netWorth = calculateNetWorthByCurrency(accounts);
-  const preferredNetWorth =
-    netWorth.find((item) => item.currency === preferredCurrency)?.amount ?? "0";
+  const available = calculateAvailableByCurrency(accounts);
   const metrics = calculateMonthlyMetrics(
     transactions,
     preferredCurrency,
@@ -103,48 +113,15 @@ export default async function DashboardPage() {
       </header>
 
       <div className="mt-8 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
-        <article className="relative overflow-hidden rounded-[2rem] bg-neutral-950 p-7 text-white shadow-[0_24px_60px_-32px_rgba(0,0,0,0.7)] sm:p-9">
-          <div className="absolute -top-24 -right-20 size-72 rounded-full bg-emerald-500/20 blur-3xl" />
-          <div className="relative">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-white/60">
-                Net worth · {preferredCurrency}
-              </p>
-              <span className="flex size-9 items-center justify-center rounded-full bg-white/10">
-                <TrendingUp
-                  aria-hidden="true"
-                  className="size-4 text-emerald-300"
-                />
-              </span>
-            </div>
-            <p className="mt-5 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-              {formatMoney(preferredNetWorth, preferredCurrency)}
-            </p>
-            <p className="mt-4 max-w-md text-sm leading-6 text-white/55">
-              Across{" "}
-              {
-                accounts.filter(
-                  (account) => account.currency === preferredCurrency,
-                ).length
-              }{" "}
-              active {preferredCurrency} accounts.
-            </p>
-            {netWorth.length > 1 && (
-              <div className="mt-7 flex flex-wrap gap-2 border-t border-white/10 pt-5">
-                {netWorth
-                  .filter((item) => item.currency !== preferredCurrency)
-                  .map((item) => (
-                    <span
-                      className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/70"
-                      key={item.currency}
-                    >
-                      Plus {formatMoney(item.amount, item.currency)}
-                    </span>
-                  ))}
-              </div>
-            )}
-          </div>
-        </article>
+        <BalanceOverviewCard
+          accountCount={
+            accounts.filter((account) => account.currency === preferredCurrency)
+              .length
+          }
+          available={available}
+          currency={preferredCurrency}
+          netWorth={netWorth}
+        />
 
         <article className="rounded-[2rem] border border-black/[0.06] bg-white p-7 shadow-[0_16px_45px_-32px_rgba(0,0,0,0.35)]">
           <div className="flex items-center justify-between">
@@ -225,7 +202,7 @@ export default async function DashboardPage() {
                   className={`flex size-10 items-center justify-center rounded-2xl ${account.type === "investment" ? "bg-violet-50 text-violet-700" : "bg-emerald-50 text-emerald-800"}`}
                 >
                   {account.type === "investment" ? (
-                    <TrendingUp aria-hidden="true" className="size-4" />
+                    <ArrowUpRight aria-hidden="true" className="size-4" />
                   ) : (
                     <Landmark aria-hidden="true" className="size-4" />
                   )}
@@ -309,15 +286,45 @@ export default async function DashboardPage() {
         </article>
 
         <article className="overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#eef7f1] p-7">
-          <CalendarClock
-            aria-hidden="true"
-            className="size-6 text-emerald-800"
-          />
-          <p className="mt-8 font-semibold">Upcoming commitments</p>
-          <p className="mt-2 max-w-sm text-sm leading-6 text-neutral-600">
-            Nothing scheduled yet. Recurring payments will appear here once you
-            add them.
-          </p>
+          <div className="flex items-center justify-between">
+            <span className="flex size-10 items-center justify-center rounded-2xl bg-white/70 text-emerald-800">
+              <CalendarClock aria-hidden="true" className="size-5" />
+            </span>
+            <Link
+              className="text-sm font-medium text-emerald-800"
+              href="/app/recurring"
+            >
+              View all
+            </Link>
+          </div>
+          <p className="mt-6 font-semibold">Upcoming commitments</p>
+          {upcoming.length ? (
+            <div className="mt-3 divide-y divide-emerald-950/10">
+              {upcoming.map((item) => (
+                <div className="flex items-center gap-3 py-3" key={item.id}>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">{item.name}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500">
+                      {item.kind === "subscription"
+                        ? "Subscription"
+                        : item.payment_method === "savings_reimbursement"
+                          ? "Savings reimbursement"
+                          : "Installment"}{" "}
+                      · {shortDate(item.next_due_on)}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold">
+                    {formatMoney(item.amount, item.currency)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 max-w-sm text-sm leading-6 text-neutral-600">
+              Nothing scheduled yet. Add a subscription or installment to see it
+              here.
+            </p>
+          )}
         </article>
       </div>
     </section>

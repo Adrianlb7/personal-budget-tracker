@@ -27,26 +27,61 @@ export function SpendingChart({
     <>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-semibold">Spending rhythm</p>
+          <p className="font-semibold">Spending chart</p>
           <p className="mt-1 text-sm text-neutral-500">
             Last six {period} · {currency}
           </p>
         </div>
         <div
           aria-label="Spending chart period"
-          className="flex items-center gap-1 rounded-full bg-neutral-100 p-1"
           role="group"
+          style={{
+            alignItems: "center",
+            background: "#f5f5f5",
+            borderRadius: "9999px",
+            display: "inline-flex",
+            gap: "4px",
+            padding: "4px",
+            position: "relative",
+          }}
         >
+          <span
+            aria-hidden="true"
+            style={{
+              background: "#ffffff",
+              borderRadius: "9999px",
+              bottom: "4px",
+              boxShadow: "0 1px 3px rgb(0 0 0 / 0.1)",
+              left: "4px",
+              pointerEvents: "none",
+              position: "absolute",
+              top: "4px",
+              transform:
+                period === "weeks"
+                  ? "translateX(calc(100% + 4px))"
+                  : "translateX(0)",
+              transition: "transform 320ms cubic-bezier(0.22, 1, 0.36, 1)",
+              width: "calc((100% - 12px) / 2)",
+              zIndex: 0,
+            }}
+          />
           {(["months", "weeks"] as const).map((option) => (
             <button
               aria-pressed={period === option}
-              className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
-                period === option
-                  ? "bg-white text-neutral-900 shadow-sm"
-                  : "text-neutral-400 hover:text-neutral-700"
-              }`}
               key={option}
               onClick={() => setPeriod(option)}
+              style={{
+                borderRadius: "9999px",
+                color: period === option ? "#171717" : "#a3a3a3",
+                fontSize: "0.75rem",
+                fontWeight: 500,
+                lineHeight: "1rem",
+                minWidth: "4rem",
+                padding: "0.375rem 0.75rem",
+                position: "relative",
+                transition: "color 260ms ease",
+                zIndex: 1,
+              }}
               type="button"
             >
               {option === "months" ? "Months" : "Weeks"}
@@ -54,7 +89,10 @@ export function SpendingChart({
           ))}
         </div>
       </div>
-      <div className="mt-8 grid h-48 grid-cols-6 items-end gap-3 sm:gap-5">
+      <div
+        className="animate-dashboard-swap mt-8 grid h-48 grid-cols-6 items-end gap-3 sm:gap-5"
+        key={period}
+      >
         {data.map((item, index) => {
           const height = decimal(maximum).isZero()
             ? 4

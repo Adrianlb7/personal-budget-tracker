@@ -1,4 +1,4 @@
-import type { Currency } from "@/domain/accounts/types";
+import type { AccountType, Currency } from "@/domain/accounts/types";
 import type { TransactionType } from "@/domain/transactions/types";
 import { decimal } from "@/lib/money/decimal";
 
@@ -6,6 +6,7 @@ export type DashboardAccount = {
   currency: Currency;
   current_balance?: string;
   opening_balance: string;
+  type?: AccountType;
 };
 
 export type DashboardTransaction = {
@@ -30,6 +31,16 @@ export function calculateNetWorthByCurrency(
     amount: value.toFixed(),
     currency,
   }));
+}
+
+export function calculateAvailableByCurrency(
+  accounts: readonly DashboardAccount[],
+) {
+  return calculateNetWorthByCurrency(
+    accounts.filter(
+      (account) => account.type === "cash" || account.type === "checking",
+    ),
+  );
 }
 
 export function calculateMonthlyMetrics(

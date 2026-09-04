@@ -1,4 +1,5 @@
 import {
+  calculateAvailableByCurrency,
   calculateMonthlyMetrics,
   calculateNetWorthByCurrency,
   calculateSpendingTrend,
@@ -6,6 +7,31 @@ import {
 } from "./calculations";
 
 describe("dashboard calculations", () => {
+  it("counts only cash and checking as available money", () => {
+    expect(
+      calculateAvailableByCurrency([
+        {
+          currency: "USD",
+          current_balance: "125.50",
+          opening_balance: "0",
+          type: "checking",
+        },
+        {
+          currency: "USD",
+          current_balance: "24.50",
+          opening_balance: "0",
+          type: "cash",
+        },
+        {
+          currency: "USD",
+          current_balance: "1000",
+          opening_balance: "0",
+          type: "savings",
+        },
+      ]),
+    ).toEqual([{ amount: "150", currency: "USD" }]);
+  });
+
   it("keeps net worth separated by currency", () => {
     expect(
       calculateNetWorthByCurrency([

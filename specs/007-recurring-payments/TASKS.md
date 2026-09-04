@@ -1,9 +1,8 @@
 # 007 Recurring Payments Tasks
 
-- [ ] Add recurring commitment table.
-- [ ] Add RLS policies.
-- [ ] Build subscription form.
-- [ ] Build external installment form.
-- [ ] Build recurring dashboard.
-- [ ] Add tests for commitment summaries.
-
+- [x] Add recurring commitment table.
+- [x] Add RLS policies.
+- [x] Build subscription form.
+- [x] Build external installment form.
+- [x] Build recurring dashboard.
+- [x] Add tests for commitment summaries.
