@@ -4,11 +4,11 @@ import { Landmark } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 
 const navigation = [
-  "Dashboard",
-  "Accounts",
-  "Transactions",
-  "Budget",
-  "Recurring",
+  { href: "/app", label: "Dashboard" },
+  { href: "/app/accounts", label: "Accounts" },
+  { href: "/app/transactions", label: "Transactions" },
+  { href: "/app/budget", label: "Budget" },
+  { href: "/app/recurring", label: "Recurring" },
 ];
 
 export function AppShell({
@@ -25,13 +25,14 @@ export function AppShell({
           Finance Hub
         </Link>
         <nav aria-label="Primary" className="mt-10 hidden space-y-1 md:block">
-          {navigation.map((item, index) => (
-            <span
-              className={`block rounded-xl px-3 py-2 text-sm ${index === 0 ? "bg-emerald-50 font-medium text-emerald-900" : "text-neutral-500"}`}
-              key={item}
+          {navigation.map((item) => (
+            <Link
+              className="block rounded-xl px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
+              href={item.href}
+              key={item.href}
             >
-              {item}
-            </span>
+              {item.label}
+            </Link>
           ))}
         </nav>
         <div className="mt-10 hidden border-t pt-5 md:block">

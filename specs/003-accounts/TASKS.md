@@ -1,10 +1,9 @@
 # 003 Accounts Tasks
 
-- [ ] Add accounts table.
-- [ ] Add account type enum or constrained values.
-- [ ] Add RLS policies.
-- [ ] Add account validation.
-- [ ] Build account list.
-- [ ] Build account form.
-- [ ] Add derived balance tests.
-
+- [x] Add accounts table.
+- [x] Add account type enum or constrained values.
+- [x] Add RLS policies.
+- [x] Add account validation.
+- [x] Build account list.
+- [x] Build account form.
+- [x] Add derived balance tests.
