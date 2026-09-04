@@ -41,7 +41,6 @@ export function AccountForm({
           maxLength={80}
           name="name"
           placeholder="Main checking"
-          required
         />
         {state.errors?.name && (
           <FieldError id="name-error" message={state.errors.name[0]} />

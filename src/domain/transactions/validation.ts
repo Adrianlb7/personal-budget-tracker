@@ -1,9 +1,16 @@
 import { z } from "zod";
 import { decimal } from "@/lib/money/decimal";
 import { normalizeMoneyInput } from "@/domain/accounts/validation";
-import { transactionTypes } from "./types";
 
 const amountPattern = /^\d+(?:[.,]\d{1,6})?$/;
+
+export function transactionDescriptionOrDefault(
+  value: FormDataEntryValue | null,
+  type: FormDataEntryValue | null,
+) {
+  if (typeof value === "string" && value.trim() !== "") return value;
+  return type === "income" ? "September salary" : "Groceries";
+}
 
 export const transactionSchema = z.object({
   accountId: z.uuid("Choose an account."),
@@ -32,7 +39,7 @@ export const transactionSchema = z.object({
     .min(1, "Enter a description.")
     .max(160, "Use 160 characters or fewer."),
   notes: z.string().trim().max(2000, "Use 2,000 characters or fewer."),
-  type: z.enum(transactionTypes),
+  type: z.enum(["income", "expense"]),
 });
 
 export type TransactionFormState = {

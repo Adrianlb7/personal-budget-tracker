@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpRight, Plus, Trash2 } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowRightLeft,
+  ArrowUpRight,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { ConfirmActionButton } from "@/components/shared/confirm-action-button";
 import { deleteTransaction } from "@/domain/transactions/actions";
 import { calculateTransactionTotals } from "@/domain/transactions/calculations";
@@ -14,7 +20,7 @@ export default async function TransactionsPage() {
   const { data, error } = await supabase
     .from("transaction_details")
     .select(
-      "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency",
+      "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
     )
     .eq("user_id", user.id)
     .order("date", { ascending: false })
@@ -48,6 +54,10 @@ export default async function TransactionsPage() {
             label="Add expense"
             primary
           />
+          <ActionLink
+            href="/app/transactions/new?type=transfer"
+            label="Transfer"
+          />
         </div>
       </div>
 
@@ -77,14 +87,19 @@ export default async function TransactionsPage() {
         <div className="mt-8 overflow-hidden rounded-2xl border bg-white">
           {transactions.map((transaction) => {
             const income = transaction.type === "income";
-            const Icon = income ? ArrowDownLeft : ArrowUpRight;
+            const transfer = transaction.type === "transfer";
+            const Icon = transfer
+              ? ArrowRightLeft
+              : income
+                ? ArrowDownLeft
+                : ArrowUpRight;
             return (
               <article
                 className="flex items-center gap-4 border-b p-5 last:border-b-0"
                 key={transaction.id}
               >
                 <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${income ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${transfer ? "bg-blue-50 text-blue-700" : income ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}
                 >
                   <Icon aria-hidden="true" className="size-5" />
                 </span>
@@ -93,14 +108,16 @@ export default async function TransactionsPage() {
                     {transaction.description}
                   </h2>
                   <p className="truncate text-sm text-neutral-500">
-                    {transaction.category_name} · {transaction.account_name} ·{" "}
-                    {formatDate(transaction.date)}
+                    {transfer
+                      ? `${transaction.account_name} → ${transaction.destination_account_name}`
+                      : `${transaction.category_name} · ${transaction.account_name}`}{" "}
+                    · {formatDate(transaction.date)}
                   </p>
                 </div>
                 <p
-                  className={`font-semibold ${income ? "text-emerald-700" : "text-neutral-900"}`}
+                  className={`font-semibold ${income ? "text-emerald-700" : transfer ? "text-blue-700" : "text-neutral-900"}`}
                 >
-                  {income ? "+" : "−"}
+                  {transfer ? "" : income ? "+" : "−"}
                   {formatMoney(transaction.amount, transaction.currency)}
                 </p>
                 <ConfirmActionButton

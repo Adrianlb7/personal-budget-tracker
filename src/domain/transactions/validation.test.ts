@@ -1,4 +1,7 @@
-import { transactionSchema } from "./validation";
+import {
+  transactionDescriptionOrDefault,
+  transactionSchema,
+} from "./validation";
 
 const valid = {
   accountId: "33333333-3333-4333-8333-333333333333",
@@ -13,6 +16,13 @@ const valid = {
 describe("transactionSchema", () => {
   it("preserves fields and normalizes comma decimals", () => {
     expect(transactionSchema.parse(valid).amount).toBe("125.50");
+  });
+
+  it.each([
+    ["income", "September salary"],
+    ["expense", "Groceries"],
+  ])("uses the %s placeholder when description is blank", (type, expected) => {
+    expect(transactionDescriptionOrDefault(" ", type)).toBe(expected);
   });
 
   it.each(["0", "-1", "1,000.25", "1.000,25"])(

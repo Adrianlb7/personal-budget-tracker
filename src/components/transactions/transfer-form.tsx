@@ -3,87 +3,53 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import type { Account } from "@/domain/accounts/types";
-import { createTransaction } from "@/domain/transactions/actions";
+import { createTransfer } from "@/domain/transactions/actions";
 
-export function TransactionForm({
-  accounts,
-  categories,
-  type,
-}: {
-  accounts: Account[];
-  categories: string[];
-  type: "income" | "expense";
-}) {
-  const [state, action, pending] = useActionState(createTransaction, {});
-  const title = type === "income" ? "Income" : "Expense";
+export function TransferForm({ accounts }: { accounts: Account[] }) {
+  const [state, action, pending] = useActionState(createTransfer, {});
 
   return (
     <form
       action={action}
       className="mt-8 max-w-2xl space-y-6 rounded-3xl border bg-white p-6 shadow-sm sm:p-8"
     >
-      <input name="type" type="hidden" value={type} />
       <Field
+        error={state.errors?.description?.[0]}
         label="Description"
         name="description"
-        error={state.errors?.description?.[0]}
-        placeholder={type === "income" ? "September salary" : "Groceries"}
+        placeholder="Move to savings"
         required={false}
       />
       <div className="grid gap-6 sm:grid-cols-2">
-        <div>
-          <label className="text-sm font-medium" htmlFor="accountId">
-            Account
-          </label>
-          <select
-            className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
-            id="accountId"
-            name="accountId"
-            required
-            defaultValue=""
-          >
-            <option disabled value="">
-              Choose an account
-            </option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name} · {account.currency}
-              </option>
-            ))}
-          </select>
-          <ErrorText message={state.errors?.accountId?.[0]} />
-        </div>
-        <Field
-          label="Date"
-          name="date"
-          error={state.errors?.date?.[0]}
-          type="date"
-          defaultValue={new Date().toISOString().slice(0, 10)}
+        <AccountSelect
+          accounts={accounts}
+          error={state.errors?.sourceAccountId?.[0]}
+          label="From account"
+          name="sourceAccountId"
+        />
+        <AccountSelect
+          accounts={accounts}
+          error={state.errors?.destinationAccountId?.[0]}
+          label="To account"
+          name="destinationAccountId"
         />
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <Field
+          error={state.errors?.amount?.[0]}
+          help="Both accounts must use the same currency."
+          inputMode="decimal"
           label="Amount"
           name="amount"
-          error={state.errors?.amount?.[0]}
-          inputMode="decimal"
           placeholder="0"
-          help="Use a comma or period for decimals."
         />
-        <div>
-          <Field
-            label="Category"
-            name="category"
-            error={state.errors?.category?.[0]}
-            list="category-options"
-            placeholder={type === "income" ? "Salary" : "Food"}
-          />
-          <datalist id="category-options">
-            {categories.map((category) => (
-              <option key={category} value={category} />
-            ))}
-          </datalist>
-        </div>
+        <Field
+          defaultValue={new Date().toISOString().slice(0, 10)}
+          error={state.errors?.date?.[0]}
+          label="Date"
+          name="date"
+          type="date"
+        />
       </div>
       <div>
         <label className="text-sm font-medium" htmlFor="notes">
@@ -111,7 +77,7 @@ export function TransactionForm({
           disabled={pending}
           type="submit"
         >
-          {pending ? "Saving…" : `Add ${title.toLowerCase()}`}
+          {pending ? "Saving…" : "Add transfer"}
         </button>
         <Link
           className="rounded-xl px-5 py-3 text-neutral-600 hover:bg-neutral-100"
@@ -124,13 +90,49 @@ export function TransactionForm({
   );
 }
 
+function AccountSelect({
+  accounts,
+  error,
+  label,
+  name,
+}: {
+  accounts: Account[];
+  error?: string;
+  label: string;
+  name: string;
+}) {
+  return (
+    <div>
+      <label className="text-sm font-medium" htmlFor={name}>
+        {label}
+      </label>
+      <select
+        className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
+        defaultValue=""
+        id={name}
+        name={name}
+        required
+      >
+        <option disabled value="">
+          Choose an account
+        </option>
+        {accounts.map((account) => (
+          <option key={account.id} value={account.id}>
+            {account.name} · {account.currency}
+          </option>
+        ))}
+      </select>
+      <ErrorText message={error} />
+    </div>
+  );
+}
+
 function Field({
   defaultValue,
   error,
   help,
   inputMode,
   label,
-  list,
   name,
   placeholder,
   required = true,
@@ -141,7 +143,6 @@ function Field({
   help?: string;
   inputMode?: "decimal";
   label: string;
-  list?: string;
   name: string;
   placeholder?: string;
   required?: boolean;
@@ -157,7 +158,6 @@ function Field({
         defaultValue={defaultValue}
         id={name}
         inputMode={inputMode}
-        list={list}
         name={name}
         placeholder={placeholder}
         required={required}

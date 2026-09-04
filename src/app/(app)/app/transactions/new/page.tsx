@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { TransactionForm } from "@/components/transactions/transaction-form";
+import { TransferForm } from "@/components/transactions/transfer-form";
 import type { Account } from "@/domain/accounts/types";
-import type { TransactionType } from "@/domain/transactions/types";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -11,8 +11,9 @@ export default async function NewTransactionPage({
   searchParams: Promise<{ type?: string }>;
 }) {
   const { type: value } = await searchParams;
-  if (value !== "income" && value !== "expense") notFound();
-  const type: TransactionType = value;
+  if (value !== "income" && value !== "expense" && value !== "transfer")
+    notFound();
+  const type = value;
   const user = await requireUser();
   const supabase = await createClient();
   const [{ data: accounts }, { data: categories }] = await Promise.all([
@@ -24,13 +25,15 @@ export default async function NewTransactionPage({
       .eq("user_id", user.id)
       .is("archived_at", null)
       .order("name"),
-    supabase
-      .from("categories")
-      .select("name")
-      .eq("user_id", user.id)
-      .eq("kind", type)
-      .is("archived_at", null)
-      .order("name"),
+    type === "transfer"
+      ? Promise.resolve({ data: [] })
+      : supabase
+          .from("categories")
+          .select("name")
+          .eq("user_id", user.id)
+          .eq("kind", type)
+          .is("archived_at", null)
+          .order("name"),
   ]);
 
   return (
@@ -41,11 +44,21 @@ export default async function NewTransactionPage({
         Record the original amount and account currency.
       </p>
       {accounts?.length ? (
-        <TransactionForm
-          accounts={accounts as Account[]}
-          categories={(categories ?? []).map((item) => item.name)}
-          type={type}
-        />
+        type === "transfer" ? (
+          accounts.length >= 2 ? (
+            <TransferForm accounts={accounts as Account[]} />
+          ) : (
+            <p className="mt-8 rounded-2xl border bg-white p-6">
+              Create at least two active accounts before adding a transfer.
+            </p>
+          )
+        ) : (
+          <TransactionForm
+            accounts={accounts as Account[]}
+            categories={(categories ?? []).map((item) => item.name)}
+            type={type}
+          />
+        )
       ) : (
         <p className="mt-8 rounded-2xl border bg-white p-6">
           Create an active account before adding transactions.

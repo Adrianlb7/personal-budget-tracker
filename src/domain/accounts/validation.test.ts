@@ -28,6 +28,16 @@ describe("accountSchema", () => {
     ).toBe(false);
   });
 
+  it("uses the placeholder name when the account name is blank", () => {
+    const result = accountSchema.parse({
+      currency: "USD",
+      name: "  ",
+      openingBalance: "0",
+      type: "checking",
+    });
+    expect(result.name).toBe("Main checking");
+  });
+
   it.each([
     ["1000.25", "1000.25"],
     ["1000,25", "1000.25"],

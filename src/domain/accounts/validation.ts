@@ -19,11 +19,17 @@ const moneyInputSchema = z
 
 export const accountSchema = z.object({
   currency: z.enum(currencies),
-  name: z
-    .string()
-    .trim()
-    .min(1, "Enter an account name.")
-    .max(80, "Use 80 characters or fewer."),
+  name: z.preprocess(
+    (value) =>
+      typeof value === "string" && value.trim() === ""
+        ? "Main checking"
+        : value,
+    z
+      .string()
+      .trim()
+      .min(1, "Enter an account name.")
+      .max(80, "Use 80 characters or fewer."),
+  ),
   openingBalance: moneyInputSchema,
   type: z.enum(accountTypes),
 });

@@ -6,7 +6,11 @@ describe("AccountForm", () => {
     const action = async () => ({});
     render(<AccountForm action={action} />);
 
-    expect(screen.getByLabelText("Account name")).toBeRequired();
+    expect(screen.getByLabelText("Account name")).not.toBeRequired();
+    expect(screen.getByLabelText("Account name")).toHaveAttribute(
+      "placeholder",
+      "Main checking",
+    );
     expect(screen.getByLabelText("Account type")).toHaveValue("checking");
     expect(screen.getByLabelText("Currency")).toHaveValue("USD");
     expect(screen.getByLabelText("Opening balance")).toHaveValue("");
