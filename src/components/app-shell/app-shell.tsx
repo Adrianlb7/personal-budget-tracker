@@ -16,9 +16,24 @@ export function AppShell({
   userEmail,
 }: Readonly<{ children: ReactNode; userEmail: string | null }>) {
   return (
-    <div className="min-h-screen md:grid md:grid-cols-[240px_1fr]">
-      <aside className="border-b border-black/[0.06] bg-white/90 p-6 backdrop-blur-xl md:sticky md:top-0 md:h-screen md:border-r md:border-b-0">
-        <Link className="flex items-center gap-3 font-semibold" href="/">
+    <div className="relative isolate min-h-screen md:grid md:grid-cols-[240px_1fr]">
+      <aside
+        className="app-sidebar relative z-20 border-b border-black/[0.06] p-6 md:sticky md:top-0 md:h-screen md:border-r md:border-b-0"
+        style={{
+          backdropFilter: "blur(46px) saturate(0.9)",
+          background: "rgba(255, 255, 255, 0.96)",
+          color: "#050605",
+          isolation: "isolate",
+          opacity: 1,
+          WebkitBackdropFilter: "blur(46px) saturate(0.9)",
+          zIndex: 50,
+        }}
+      >
+        <Link
+          className="flex items-center gap-3 font-semibold"
+          href="/"
+          style={{ color: "#050605" }}
+        >
           <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-900 text-white">
             <Landmark aria-hidden="true" className="size-5" />
           </span>
@@ -30,6 +45,7 @@ export function AppShell({
               className="block rounded-xl px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
               href={item.href}
               key={item.href}
+              style={{ color: "#050605" }}
             >
               {item.label}
             </Link>
@@ -37,14 +53,19 @@ export function AppShell({
         </nav>
         <div className="mt-10 hidden border-t pt-5 md:block">
           {userEmail && (
-            <p className="mb-2 truncate px-3 text-xs text-neutral-500">
+            <p
+              className="sidebar-email mb-2 truncate px-3 text-xs text-neutral-500"
+              style={{ color: "#050605" }}
+            >
               {userEmail}
             </p>
           )}
           <SignOutButton />
         </div>
       </aside>
-      <main className="min-w-0 p-5 sm:p-8 lg:p-10">{children}</main>
+      <main className="relative z-10 min-w-0 p-5 sm:p-8 lg:p-10">
+        {children}
+      </main>
     </div>
   );
 }

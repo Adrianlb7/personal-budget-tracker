@@ -1,4 +1,5 @@
 import {
+  addConvertedValueToNetWorth,
   calculateAvailableByCurrency,
   calculateMonthlyMetrics,
   calculateNetWorthByCurrency,
@@ -7,6 +8,16 @@ import {
 } from "./calculations";
 
 describe("dashboard calculations", () => {
+  it("adds converted BTC value to USD net worth without changing availability", () => {
+    expect(
+      addConvertedValueToNetWorth(
+        [{ amount: "5000", currency: "USD" }],
+        "12345.678",
+        "USD",
+      ),
+    ).toEqual([{ amount: "17345.678", currency: "USD" }]);
+  });
+
   it("counts only cash and checking as available money", () => {
     expect(
       calculateAvailableByCurrency([

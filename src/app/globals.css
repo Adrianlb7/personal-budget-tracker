@@ -24,6 +24,14 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html.dashboard-scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+html.dashboard-scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
 @keyframes dashboard-swap {
   from {
     opacity: 0.45;
@@ -37,6 +45,21 @@ body {
 
 .animate-dashboard-swap {
   animation: dashboard-swap 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.app-sidebar,
+.app-sidebar a,
+.app-sidebar button,
+.app-sidebar p {
+  color: #050605 !important;
+}
+
+.app-sidebar .sidebar-email {
+  color: #050605 !important;
+}
+
+.app-sidebar a > span {
+  color: #ffffff !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

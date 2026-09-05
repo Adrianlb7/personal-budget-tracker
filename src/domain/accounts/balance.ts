@@ -19,3 +19,11 @@ export function calculateAccountBalance(
     )
     .toFixed();
 }
+
+export function exceedsAvailableBalance(amount: string, balance: string) {
+  try {
+    return decimal(amount.replace(",", ".")).greaterThan(balance);
+  } catch {
+    return false;
+  }
+}

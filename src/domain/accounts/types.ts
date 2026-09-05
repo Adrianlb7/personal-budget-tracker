@@ -16,7 +16,7 @@ export const accountTypeLabels: Record<AccountType, string> = {
   credit_debt: "Credit or debt",
 };
 
-export const currencies = ["USD", "CLP"] as const;
+export const currencies = ["USD", "CLP", "BTC"] as const;
 export type Currency = (typeof currencies)[number];
 
 export type Account = {

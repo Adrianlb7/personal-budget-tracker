@@ -33,6 +33,21 @@ export function calculateNetWorthByCurrency(
   }));
 }
 
+export function addConvertedValueToNetWorth(
+  totals: ReturnType<typeof calculateNetWorthByCurrency>,
+  amount: string | null,
+  currency: Currency,
+) {
+  if (amount === null) return totals;
+  const existing = totals.find((total) => total.currency === currency);
+  if (!existing) return [...totals, { amount, currency }];
+  return totals.map((total) =>
+    total.currency === currency
+      ? { ...total, amount: decimal(total.amount).plus(amount).toFixed() }
+      : total,
+  );
+}
+
 export function calculateAvailableByCurrency(
   accounts: readonly DashboardAccount[],
 ) {

@@ -4,18 +4,19 @@ import { useState } from "react";
 import { Landmark, TrendingUp } from "lucide-react";
 import type { Currency } from "@/domain/accounts/types";
 import { formatMoney } from "@/lib/money/format";
+import { MoneyValue } from "@/components/dashboard/dashboard-privacy";
 
 type BalanceTotal = { amount: string; currency: Currency };
 
 export function BalanceOverviewCard({
-  accountCount,
   available,
   currency,
+  dailyMessage,
   netWorth,
 }: {
-  accountCount: number;
   available: BalanceTotal[];
   currency: Currency;
+  dailyMessage: string;
   netWorth: BalanceTotal[];
 }) {
   const [view, setView] = useState<"available" | "netWorth">("netWorth");
@@ -81,12 +82,10 @@ export function BalanceOverviewCard({
         <div className="animate-dashboard-swap" key={view}>
           <p className="mt-5 text-sm text-white/50">{currency}</p>
           <p className="mt-2 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
-            {formatMoney(amount, currency)}
+            <MoneyValue strong>{formatMoney(amount, currency)}</MoneyValue>
           </p>
           <p className="mt-4 max-w-md text-sm leading-6 text-white/55">
-            {view === "netWorth"
-              ? `Across ${accountCount} active ${currency} accounts.`
-              : "Ready to use"}
+            {view === "netWorth" ? dailyMessage : "Ready to use"}
           </p>
         </div>
         {totals.some((item) => item.currency !== currency) && (
@@ -98,7 +97,10 @@ export function BalanceOverviewCard({
                   className="rounded-full bg-white/10 px-3 py-1.5 text-xs text-white/70"
                   key={item.currency}
                 >
-                  Plus {formatMoney(item.amount, item.currency)}
+                  Plus{" "}
+                  <MoneyValue>
+                    {formatMoney(item.amount, item.currency)}
+                  </MoneyValue>
                 </span>
               ))}
           </div>

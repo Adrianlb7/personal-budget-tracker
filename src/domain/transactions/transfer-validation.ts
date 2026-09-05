@@ -3,6 +3,7 @@ import { decimal } from "@/lib/money/decimal";
 import { normalizeMoneyInput } from "@/domain/accounts/validation";
 
 const amountPattern = /^\d+(?:[.,]\d{1,6})?$/;
+const ratePattern = /^\d+(?:[.,]\d{1,6})?$/;
 
 export const transferSchema = z
   .object({
@@ -32,6 +33,15 @@ export const transferSchema = z
         .max(160, "Use 160 characters or fewer."),
     ),
     destinationAccountId: z.uuid("Choose a destination account."),
+    exchangeRate: z
+      .string()
+      .trim()
+      .refine(
+        (value) => value === "" || ratePattern.test(value),
+        "Enter a valid bank rate.",
+      )
+      .transform((value) => (value === "" ? "" : normalizeMoneyInput(value)))
+      .default(""),
     notes: z.string().trim().max(2000, "Use 2,000 characters or fewer."),
     sourceAccountId: z.uuid("Choose a source account."),
   })

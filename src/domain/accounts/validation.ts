@@ -2,7 +2,7 @@ import { z } from "zod";
 import { decimal } from "@/lib/money/decimal";
 import { accountTypes, currencies } from "./types";
 
-const moneyPattern = /^-?\d+(?:[.,]\d{1,6})?$/;
+const moneyPattern = /^-?\d+(?:[.,]\d{1,8})?$/;
 
 export const normalizeMoneyInput = (value: string) =>
   value.trim().replace(",", ".");
@@ -10,7 +10,7 @@ export const normalizeMoneyInput = (value: string) =>
 const moneyInputSchema = z
   .string()
   .trim()
-  .regex(moneyPattern, "Enter a number with up to 6 decimal places.")
+  .regex(moneyPattern, "Enter a number with up to 8 decimal places.")
   .transform(normalizeMoneyInput)
   .refine(
     (value) => decimal(value).abs().lessThan("100000000000000"),

@@ -14,6 +14,12 @@ describe("transferSchema", () => {
     expect(transferSchema.parse(valid).amount).toBe("300.25");
   });
 
+  it("normalizes a manual CLP per USD rate", () => {
+    expect(
+      transferSchema.parse({ ...valid, exchangeRate: "910,25" }).exchangeRate,
+    ).toBe("910.25");
+  });
+
   it("requires different accounts", () => {
     const result = transferSchema.safeParse({
       ...valid,

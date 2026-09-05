@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
+import { CategoryCombobox } from "@/components/categories/category-combobox";
 import type { Account } from "@/domain/accounts/types";
+import { exceedsAvailableBalance } from "@/domain/accounts/balance";
 import { createTransaction } from "@/domain/transactions/actions";
+import { formatMoney } from "@/lib/money/format";
 
 export function TransactionForm({
   accounts,
@@ -15,6 +18,18 @@ export function TransactionForm({
   type: "income" | "expense";
 }) {
   const [state, action, pending] = useActionState(createTransaction, {});
+  const [accountId, setAccountId] = useState("");
+  const [amount, setAmount] = useState("");
+  const selectedAccount = accounts.find((account) => account.id === accountId);
+  const available =
+    selectedAccount?.current_balance ?? selectedAccount?.opening_balance;
+  const insufficient = Boolean(
+    type === "expense" &&
+    selectedAccount?.type !== "credit_debt" &&
+    available &&
+    amount &&
+    exceedsAvailableBalance(amount, available),
+  );
   const title = type === "income" ? "Income" : "Expense";
 
   return (
@@ -39,6 +54,7 @@ export function TransactionForm({
             className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
             id="accountId"
             name="accountId"
+            onChange={(event) => setAccountId(event.target.value)}
             required
             defaultValue=""
           >
@@ -69,22 +85,32 @@ export function TransactionForm({
           inputMode="decimal"
           placeholder="0"
           help="Use a comma or period for decimals."
+          onChange={setAmount}
         />
         <div>
-          <Field
-            label="Category"
-            name="category"
+          <label className="text-sm font-medium" htmlFor="transaction-category">
+            Category
+          </label>
+          <CategoryCombobox
+            categories={categories}
             error={state.errors?.category?.[0]}
-            list="category-options"
-            placeholder={type === "income" ? "Salary" : "Food"}
+            id="transaction-category"
+            placeholder={
+              type === "income"
+                ? "Choose income category"
+                : "Choose expense category"
+            }
           />
-          <datalist id="category-options">
-            {categories.map((category) => (
-              <option key={category} value={category} />
-            ))}
-          </datalist>
         </div>
       </div>
+      {type === "expense" && selectedAccount && (
+        <p
+          className={`text-sm ${insufficient ? "text-red-700" : "text-neutral-500"}`}
+        >
+          Available: {formatMoney(available ?? "0", selectedAccount.currency)}
+          {insufficient && " · The expense is higher than this balance."}
+        </p>
+      )}
       <div>
         <label className="text-sm font-medium" htmlFor="notes">
           Notes <span className="text-neutral-400">(optional)</span>
@@ -108,7 +134,7 @@ export function TransactionForm({
       <div className="flex gap-3 border-t pt-6">
         <button
           className="rounded-xl bg-emerald-900 px-5 py-3 font-medium text-white disabled:opacity-60"
-          disabled={pending}
+          disabled={pending || insufficient}
           type="submit"
         >
           {pending ? "Saving…" : `Add ${title.toLowerCase()}`}
@@ -130,9 +156,9 @@ function Field({
   help,
   inputMode,
   label,
-  list,
   name,
   placeholder,
+  onChange,
   required = true,
   type = "text",
 }: {
@@ -141,9 +167,9 @@ function Field({
   help?: string;
   inputMode?: "decimal";
   label: string;
-  list?: string;
   name: string;
   placeholder?: string;
+  onChange?: (value: string) => void;
   required?: boolean;
   type?: string;
 }) {
@@ -157,8 +183,8 @@ function Field({
         defaultValue={defaultValue}
         id={name}
         inputMode={inputMode}
-        list={list}
         name={name}
+        onChange={(event) => onChange?.(event.target.value)}
         placeholder={placeholder}
         required={required}
         type={type}

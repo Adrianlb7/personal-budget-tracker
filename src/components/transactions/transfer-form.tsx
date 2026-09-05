@@ -1,12 +1,43 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useMemo, useState } from "react";
 import type { Account } from "@/domain/accounts/types";
+import { exceedsAvailableBalance } from "@/domain/accounts/balance";
 import { createTransfer } from "@/domain/transactions/actions";
+import { convertClpToUsd } from "@/domain/fx/calculations";
+import { formatMoney } from "@/lib/money/format";
 
 export function TransferForm({ accounts }: { accounts: Account[] }) {
   const [state, action, pending] = useActionState(createTransfer, {});
+  const [sourceId, setSourceId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [rate, setRate] = useState("");
+  const source = accounts.find((account) => account.id === sourceId);
+  const sourceBalance = source?.current_balance ?? source?.opening_balance;
+  const insufficient = Boolean(
+    source?.type !== "credit_debt" &&
+    sourceBalance &&
+    amount &&
+    exceedsAvailableBalance(amount, sourceBalance),
+  );
+  const converted = useMemo(() => {
+    try {
+      const cleanAmount = amount.replace(",", ".");
+      const cleanRate = rate.replace(",", ".");
+      if (!cleanAmount || !cleanRate) return null;
+      return convertClpToUsd(cleanAmount, cleanRate);
+    } catch {
+      return null;
+    }
+  }, [amount, rate]);
+  const destinations = source
+    ? accounts.filter((account) =>
+        source.currency === "CLP"
+          ? account.currency === "USD" && account.type === "checking"
+          : account.currency === "USD" && account.id !== source.id,
+      )
+    : accounts.filter((account) => account.currency !== "BTC");
 
   return (
     <form
@@ -22,13 +53,14 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
       />
       <div className="grid gap-6 sm:grid-cols-2">
         <AccountSelect
-          accounts={accounts}
+          accounts={accounts.filter((account) => account.currency !== "BTC")}
           error={state.errors?.sourceAccountId?.[0]}
           label="From account"
           name="sourceAccountId"
+          onChange={setSourceId}
         />
         <AccountSelect
-          accounts={accounts}
+          accounts={destinations}
           error={state.errors?.destinationAccountId?.[0]}
           label="To account"
           name="destinationAccountId"
@@ -37,12 +69,22 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
       <div className="grid gap-6 sm:grid-cols-2">
         <Field
           error={state.errors?.amount?.[0]}
-          help="Both accounts must use the same currency."
+          help={
+            source
+              ? `Available: ${formatMoney(sourceBalance ?? "0", source.currency)}`
+              : "Choose a source account to see the available balance."
+          }
           inputMode="decimal"
           label="Amount"
           name="amount"
           placeholder="0"
+          onChange={setAmount}
         />
+        {insufficient && (
+          <p className="-mt-4 text-sm text-red-700 sm:col-span-2" role="alert">
+            The amount is higher than the available balance.
+          </p>
+        )}
         <Field
           defaultValue={new Date().toISOString().slice(0, 10)}
           error={state.errors?.date?.[0]}
@@ -51,6 +93,26 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
           type="date"
         />
       </div>
+      {source?.currency === "CLP" && (
+        <div className="rounded-2xl bg-emerald-50/70 p-4">
+          <Field
+            error={state.errors?.exchangeRate?.[0]}
+            help="Enter the rate shown by your bank, for example 910 CLP per USD."
+            inputMode="decimal"
+            label="Bank rate · CLP per USD"
+            name="exchangeRate"
+            onChange={setRate}
+            placeholder="910"
+          />
+          <p className="mt-3 text-sm text-emerald-900">
+            USD received:{" "}
+            <strong>{converted ? formatMoney(converted, "USD") : "—"}</strong>
+          </p>
+        </div>
+      )}
+      {source?.currency !== "CLP" && (
+        <input name="exchangeRate" type="hidden" value="" />
+      )}
       <div>
         <label className="text-sm font-medium" htmlFor="notes">
           Notes <span className="text-neutral-400">(optional)</span>
@@ -74,7 +136,7 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
       <div className="flex gap-3 border-t pt-6">
         <button
           className="rounded-xl bg-emerald-900 px-5 py-3 font-medium text-white disabled:opacity-60"
-          disabled={pending}
+          disabled={pending || insufficient}
           type="submit"
         >
           {pending ? "Saving…" : "Add transfer"}
@@ -95,11 +157,13 @@ function AccountSelect({
   error,
   label,
   name,
+  onChange,
 }: {
   accounts: Account[];
   error?: string;
   label: string;
   name: string;
+  onChange?: (value: string) => void;
 }) {
   return (
     <div>
@@ -111,6 +175,7 @@ function AccountSelect({
         defaultValue=""
         id={name}
         name={name}
+        onChange={(event) => onChange?.(event.target.value)}
         required
       >
         <option disabled value="">
@@ -135,6 +200,7 @@ function Field({
   label,
   name,
   placeholder,
+  onChange,
   required = true,
   type = "text",
 }: {
@@ -145,6 +211,7 @@ function Field({
   label: string;
   name: string;
   placeholder?: string;
+  onChange?: (value: string) => void;
   required?: boolean;
   type?: string;
 }) {
@@ -159,6 +226,7 @@ function Field({
         id={name}
         inputMode={inputMode}
         name={name}
+        onChange={(event) => onChange?.(event.target.value)}
         placeholder={placeholder}
         required={required}
         type={type}

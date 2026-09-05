@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { TransactionForm } from "@/components/transactions/transaction-form";
 import { TransferForm } from "@/components/transactions/transfer-form";
 import type { Account } from "@/domain/accounts/types";
+import { categoryOptions } from "@/domain/categories/catalog";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
 
@@ -35,6 +36,13 @@ export default async function NewTransactionPage({
           .is("archived_at", null)
           .order("name"),
   ]);
+  const usableAccounts =
+    (accounts as Account[] | null)?.filter(
+      (account) => account.currency !== "BTC",
+    ) ?? [];
+  const transactionAccounts = usableAccounts.filter(
+    (account) => account.currency === "USD",
+  );
 
   return (
     <section>
@@ -43,10 +51,10 @@ export default async function NewTransactionPage({
       <p className="mt-2 text-neutral-600">
         Record the original amount and account currency.
       </p>
-      {accounts?.length ? (
+      {(type === "transfer" ? usableAccounts : transactionAccounts).length ? (
         type === "transfer" ? (
-          accounts.length >= 2 ? (
-            <TransferForm accounts={accounts as Account[]} />
+          usableAccounts.length >= 2 ? (
+            <TransferForm accounts={usableAccounts} />
           ) : (
             <p className="mt-8 rounded-2xl border bg-white p-6">
               Create at least two active accounts before adding a transfer.
@@ -54,14 +62,19 @@ export default async function NewTransactionPage({
           )
         ) : (
           <TransactionForm
-            accounts={accounts as Account[]}
-            categories={(categories ?? []).map((item) => item.name)}
+            accounts={transactionAccounts}
+            categories={categoryOptions(
+              type,
+              (categories ?? []).map((item) => item.name),
+            )}
             type={type}
           />
         )
       ) : (
         <p className="mt-8 rounded-2xl border bg-white p-6">
-          Create an active account before adding transactions.
+          {type === "transfer"
+            ? "Create active USD or CLP accounts before adding a transfer."
+            : "Create an active USD account before adding transactions."}
         </p>
       )}
     </section>

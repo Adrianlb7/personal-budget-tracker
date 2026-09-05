@@ -26,11 +26,7 @@ Build the financial cockpit with net worth, account breakdown, current month met
 
 ## Phase 7: Recurring Payments
 
-Support subscriptions and external installment tracking.
-
-## Phase 8: Self-Financed Purchases
-
-Support savings reimbursement plans linked to original expense and future internal transfers.
+Support subscriptions, external installment tracking, and savings reimbursement installments linked to internal transfers.
 
 ## Phase 9: Budgeting
 
@@ -51,4 +47,3 @@ Track financial goals optionally associated with existing savings accounts.
 ## Phase 13: Reports
 
 Add net worth over time, income vs expenses, savings rate, spending by category, and cash-flow reports.
-

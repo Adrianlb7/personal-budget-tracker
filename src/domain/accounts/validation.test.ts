@@ -53,6 +53,17 @@ describe("accountSchema", () => {
     expect(result.openingBalance).toBe(expected);
   });
 
+  it("preserves eight decimal places for a BTC holding", () => {
+    expect(
+      accountSchema.parse({
+        currency: "BTC",
+        name: "Bitcoin",
+        openingBalance: "0.12345678",
+        type: "investment",
+      }).openingBalance,
+    ).toBe("0.12345678");
+  });
+
   it.each(["1,000.25", "1.000,25", "1000,", "not money"])(
     "rejects malformed value %s without throwing",
     (openingBalance) => {

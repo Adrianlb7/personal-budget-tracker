@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Currency } from "@/domain/accounts/types";
 import { decimal } from "@/lib/money/decimal";
 import { formatMoney } from "@/lib/money/format";
+import { MoneyValue } from "@/components/dashboard/dashboard-privacy";
 
 type ChartPoint = { amount: string; key: string; label: string };
 
@@ -108,7 +109,7 @@ export function SpendingChart({
             >
               <div className="group relative flex flex-1 items-end justify-center">
                 <span className="pointer-events-none absolute -top-7 hidden rounded-lg bg-neutral-900 px-2 py-1 text-xs whitespace-nowrap text-white group-hover:block">
-                  {formatMoney(item.amount, currency)}
+                  <MoneyValue>{formatMoney(item.amount, currency)}</MoneyValue>
                 </span>
                 <div
                   aria-label={`${item.label}: ${formatMoney(item.amount, currency)}`}

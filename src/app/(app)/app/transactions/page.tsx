@@ -4,6 +4,8 @@ import {
   ArrowRightLeft,
   ArrowUpRight,
   Plus,
+  RefreshCw,
+  Repeat2,
   Trash2,
 } from "lucide-react";
 import { ConfirmActionButton } from "@/components/shared/confirm-action-button";
@@ -88,18 +90,35 @@ export default async function TransactionsPage() {
           {transactions.map((transaction) => {
             const income = transaction.type === "income";
             const transfer = transaction.type === "transfer";
-            const Icon = transfer
-              ? ArrowRightLeft
-              : income
-                ? ArrowDownLeft
-                : ArrowUpRight;
+            const installment =
+              transaction.metadata.recurring_kind === "installment";
+            const subscription =
+              transaction.metadata.recurring_kind === "subscription";
+            const Icon = installment
+              ? Repeat2
+              : subscription
+                ? RefreshCw
+                : transfer
+                  ? ArrowRightLeft
+                  : income
+                    ? ArrowDownLeft
+                    : ArrowUpRight;
+            const iconTone = installment
+              ? "bg-violet-50 text-violet-700"
+              : subscription
+                ? "bg-amber-50 text-amber-700"
+                : transfer
+                  ? "bg-blue-50 text-blue-700"
+                  : income
+                    ? "bg-emerald-50 text-emerald-700"
+                    : "bg-red-50 text-red-700";
             return (
               <article
                 className="flex items-center gap-4 border-b p-5 last:border-b-0"
                 key={transaction.id}
               >
                 <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${transfer ? "bg-blue-50 text-blue-700" : income ? "bg-emerald-50 text-emerald-700" : "bg-red-50 text-red-700"}`}
+                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${iconTone}`}
                 >
                   <Icon aria-hidden="true" className="size-5" />
                 </span>
@@ -123,6 +142,18 @@ export default async function TransactionsPage() {
                 >
                   {transfer ? "" : income ? "+" : "−"}
                   {formatMoney(transaction.amount, transaction.currency)}
+                  {transfer &&
+                    transaction.destination_currency &&
+                    transaction.destination_currency !== transaction.currency &&
+                    transaction.destination_amount && (
+                      <span className="ml-2 text-sm font-normal text-neutral-500">
+                        →{" "}
+                        {formatMoney(
+                          transaction.destination_amount,
+                          transaction.destination_currency,
+                        )}
+                      </span>
+                    )}
                 </p>
                 <ConfirmActionButton
                   action={deleteTransaction.bind(null, transaction.id)}
