@@ -5,24 +5,40 @@ import { useActionState, useState } from "react";
 import { CategoryCombobox } from "@/components/categories/category-combobox";
 import type { Account } from "@/domain/accounts/types";
 import { exceedsAvailableBalance } from "@/domain/accounts/balance";
-import { createTransaction } from "@/domain/transactions/actions";
+import {
+  createTransaction,
+  updateTransaction,
+} from "@/domain/transactions/actions";
+import type { TransactionDetail } from "@/domain/transactions/types";
+import { decimal } from "@/lib/money/decimal";
 import { formatMoney } from "@/lib/money/format";
 
 export function TransactionForm({
   accounts,
   categories,
+  transaction,
   type,
 }: {
   accounts: Account[];
   categories: string[];
+  transaction?: TransactionDetail;
   type: "income" | "expense";
 }) {
-  const [state, action, pending] = useActionState(createTransaction, {});
-  const [accountId, setAccountId] = useState("");
-  const [amount, setAmount] = useState("");
+  const submitAction = transaction
+    ? updateTransaction.bind(null, transaction.id)
+    : createTransaction;
+  const [state, action, pending] = useActionState(submitAction, {});
+  const [accountId, setAccountId] = useState(transaction?.account_id ?? "");
+  const [amount, setAmount] = useState(transaction?.amount ?? "");
   const selectedAccount = accounts.find((account) => account.id === accountId);
-  const available =
+  const rawAvailable =
     selectedAccount?.current_balance ?? selectedAccount?.opening_balance;
+  const available =
+    transaction?.type === "expense" && transaction.account_id === accountId
+      ? decimal(rawAvailable ?? "0")
+          .plus(transaction.amount)
+          .toString()
+      : rawAvailable;
   const insufficient = Boolean(
     type === "expense" &&
     selectedAccount?.type !== "credit_debt" &&
@@ -39,6 +55,7 @@ export function TransactionForm({
     >
       <input name="type" type="hidden" value={type} />
       <Field
+        defaultValue={transaction?.description}
         label="Description"
         name="description"
         error={state.errors?.description?.[0]}
@@ -56,7 +73,7 @@ export function TransactionForm({
             name="accountId"
             onChange={(event) => setAccountId(event.target.value)}
             required
-            defaultValue=""
+            defaultValue={transaction?.account_id ?? ""}
           >
             <option disabled value="">
               Choose an account
@@ -74,11 +91,14 @@ export function TransactionForm({
           name="date"
           error={state.errors?.date?.[0]}
           type="date"
-          defaultValue={new Date().toISOString().slice(0, 10)}
+          defaultValue={
+            transaction?.date ?? new Date().toISOString().slice(0, 10)
+          }
         />
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <Field
+          defaultValue={transaction?.amount}
           label="Amount"
           name="amount"
           error={state.errors?.amount?.[0]}
@@ -95,6 +115,7 @@ export function TransactionForm({
             categories={categories}
             error={state.errors?.category?.[0]}
             id="transaction-category"
+            initialValue={transaction?.category_name ?? ""}
             placeholder={
               type === "income"
                 ? "Choose income category"
@@ -120,6 +141,7 @@ export function TransactionForm({
           id="notes"
           maxLength={2000}
           name="notes"
+          defaultValue={transaction?.notes ?? ""}
         />
         <ErrorText message={state.errors?.notes?.[0]} />
       </div>
@@ -137,7 +159,11 @@ export function TransactionForm({
           disabled={pending || insufficient}
           type="submit"
         >
-          {pending ? "Saving…" : `Add ${title.toLowerCase()}`}
+          {pending
+            ? "Saving…"
+            : transaction
+              ? "Save changes"
+              : `Add ${title.toLowerCase()}`}
         </button>
         <Link
           className="rounded-xl px-5 py-3 text-neutral-600 hover:bg-neutral-100"

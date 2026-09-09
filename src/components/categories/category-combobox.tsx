@@ -11,17 +11,19 @@ export function CategoryCombobox({
   categories,
   error,
   id,
+  initialValue = "",
   name = "category",
   placeholder,
 }: {
   categories: string[];
   error?: string;
   id: string;
+  initialValue?: string;
   name?: string;
   placeholder: string;
 }) {
-  const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState("");
+  const [query, setQuery] = useState(initialValue);
+  const [selected, setSelected] = useState(initialValue);
   const [open, setOpen] = useState(false);
   const normalizedQuery = normalizeCategoryName(query);
   const exact = categories.find(

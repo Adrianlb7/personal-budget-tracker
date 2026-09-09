@@ -17,7 +17,7 @@ export function recurringNameOrDefault(
 
 export const recurringSchema = z
   .object({
-    accountId: z.uuid("Choose an account."),
+    accountId: z.union([z.literal(""), z.uuid("Choose an account.")]),
     amount: z
       .string()
       .trim()
@@ -46,24 +46,6 @@ export const recurringSchema = z
         path: ["endsOn"],
       });
     if (value.kind === "external_installment") {
-      if (
-        value.paymentMethod === "savings_reimbursement" &&
-        !value.destinationAccountId
-      )
-        context.addIssue({
-          code: "custom",
-          message: "Choose the savings destination.",
-          path: ["destinationAccountId"],
-        });
-      if (
-        value.paymentMethod === "savings_reimbursement" &&
-        value.destinationAccountId === value.accountId
-      )
-        context.addIssue({
-          code: "custom",
-          message: "Choose two different accounts.",
-          path: ["destinationAccountId"],
-        });
       const total = Number(value.installmentCount);
       const completed = Number(value.installmentsCompleted);
       if (!Number.isInteger(total) || total < 1)
@@ -82,11 +64,8 @@ export const recurringSchema = z
   })
   .transform((value) => ({
     ...value,
-    destinationAccountId:
-      value.kind === "external_installment" &&
-      value.paymentMethod === "savings_reimbursement"
-        ? value.destinationAccountId
-        : null,
+    accountId: null,
+    destinationAccountId: null,
     installmentCount:
       value.kind === "external_installment"
         ? Number(value.installmentCount)

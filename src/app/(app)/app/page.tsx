@@ -226,8 +226,17 @@ export default async function DashboardPage() {
                 <ArrowRight aria-label="View accounts" className="size-4" />
               </Link>
             </div>
-            <div className="mt-5 space-y-1">
-              {accounts.slice(0, 5).map((account) => (
+            <div
+              aria-label="Account balances"
+              className="dashboard-account-scroll mt-5 space-y-1 pr-1"
+              style={{
+                maxHeight: "12.5rem",
+                overflowY: "auto",
+                overscrollBehavior: "contain",
+                scrollbarWidth: "none",
+              }}
+            >
+              {accounts.map((account) => (
                 <div
                   className="flex items-center gap-3 rounded-2xl px-2 py-3"
                   key={account.id}

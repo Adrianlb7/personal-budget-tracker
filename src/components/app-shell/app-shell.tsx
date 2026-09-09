@@ -9,6 +9,7 @@ const navigation = [
   { href: "/app/transactions", label: "Transactions" },
   { href: "/app/budget", label: "Budget" },
   { href: "/app/recurring", label: "Recurring" },
+  { href: "/app/reports", label: "Reports" },
 ];
 
 export function AppShell({

@@ -4,6 +4,7 @@ import {
   ArrowRightLeft,
   ArrowUpRight,
   Plus,
+  Pencil,
   RefreshCw,
   Repeat2,
   Trash2,
@@ -155,6 +156,13 @@ export default async function TransactionsPage() {
                       </span>
                     )}
                 </p>
+                <Link
+                  aria-label={`Edit ${transaction.description}`}
+                  className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-800"
+                  href={`/app/transactions/${transaction.id}/edit`}
+                >
+                  <Pencil className="size-4" />
+                </Link>
                 <ConfirmActionButton
                   action={deleteTransaction.bind(null, transaction.id)}
                   className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-700"

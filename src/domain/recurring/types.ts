@@ -7,7 +7,7 @@ export type RecurringFrequency = "monthly" | "weekly" | "yearly";
 export type RecurringStatus = "active" | "cancelled" | "completed" | "paused";
 
 export type RecurringCommitment = {
-  account_id: string;
+  account_id: string | null;
   amount: string;
   created_at: string;
   currency: Currency;

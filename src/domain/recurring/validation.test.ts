@@ -17,9 +17,14 @@ const valid = {
 
 describe("recurringSchema", () => {
   it("normalizes money and supplies the placeholder name", () => {
-    const result = recurringSchema.parse(valid);
+    const result = recurringSchema.parse({ ...valid, accountId: "" });
     expect(result.amount).toBe("19.99");
     expect(result.name).toBe("Monthly subscription");
+  });
+  it("lets subscriptions choose their payment account when paid", () => {
+    expect(recurringSchema.safeParse({ ...valid, accountId: "" }).success).toBe(
+      true,
+    );
   });
   it("uses the correct placeholder name for each kind", () => {
     expect(recurringNameOrDefault("", "subscription")).toBe(
@@ -40,19 +45,19 @@ describe("recurringSchema", () => {
       }).success,
     ).toBe(false);
   });
-  it("only requires savings for a reimbursement installment", () => {
+  it("defers installment payment routing until payment", () => {
     const installment = {
       ...valid,
       kind: "external_installment",
       installmentCount: "6",
       installmentsCompleted: "0",
     };
-    expect(recurringSchema.safeParse(installment).success).toBe(true);
-    expect(
-      recurringSchema.safeParse({
-        ...installment,
-        paymentMethod: "savings_reimbursement",
-      }).success,
-    ).toBe(false);
+    const result = recurringSchema.parse({
+      ...installment,
+      accountId: "",
+      paymentMethod: "savings_reimbursement",
+    });
+    expect(result.accountId).toBeNull();
+    expect(result.destinationAccountId).toBeNull();
   });
 });

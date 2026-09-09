@@ -4,17 +4,39 @@ import Link from "next/link";
 import { useActionState, useMemo, useState } from "react";
 import type { Account } from "@/domain/accounts/types";
 import { exceedsAvailableBalance } from "@/domain/accounts/balance";
-import { createTransfer } from "@/domain/transactions/actions";
+import { createTransfer, updateTransfer } from "@/domain/transactions/actions";
+import type { TransactionDetail } from "@/domain/transactions/types";
+import { decimal } from "@/lib/money/decimal";
 import { convertClpToUsd } from "@/domain/fx/calculations";
 import { formatMoney } from "@/lib/money/format";
 
-export function TransferForm({ accounts }: { accounts: Account[] }) {
-  const [state, action, pending] = useActionState(createTransfer, {});
-  const [sourceId, setSourceId] = useState("");
-  const [amount, setAmount] = useState("");
-  const [rate, setRate] = useState("");
+export function TransferForm({
+  accounts,
+  transaction,
+}: {
+  accounts: Account[];
+  transaction?: TransactionDetail;
+}) {
+  const submitAction = transaction
+    ? updateTransfer.bind(null, transaction.id)
+    : createTransfer;
+  const [state, action, pending] = useActionState(submitAction, {});
+  const [sourceId, setSourceId] = useState(transaction?.account_id ?? "");
+  const [amount, setAmount] = useState(transaction?.amount ?? "");
+  const initialRate =
+    typeof transaction?.metadata.clp_per_usd === "number" ||
+    typeof transaction?.metadata.clp_per_usd === "string"
+      ? String(transaction.metadata.clp_per_usd)
+      : "";
+  const [rate, setRate] = useState(initialRate);
   const source = accounts.find((account) => account.id === sourceId);
-  const sourceBalance = source?.current_balance ?? source?.opening_balance;
+  const rawSourceBalance = source?.current_balance ?? source?.opening_balance;
+  const sourceBalance =
+    transaction?.account_id === sourceId
+      ? decimal(rawSourceBalance ?? "0")
+          .plus(transaction.amount)
+          .toString()
+      : rawSourceBalance;
   const insufficient = Boolean(
     source?.type !== "credit_debt" &&
     sourceBalance &&
@@ -45,6 +67,7 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
       className="mt-8 max-w-2xl space-y-6 rounded-3xl border bg-white p-6 shadow-sm sm:p-8"
     >
       <Field
+        defaultValue={transaction?.description}
         error={state.errors?.description?.[0]}
         label="Description"
         name="description"
@@ -58,16 +81,19 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
           label="From account"
           name="sourceAccountId"
           onChange={setSourceId}
+          defaultValue={transaction?.account_id}
         />
         <AccountSelect
           accounts={destinations}
           error={state.errors?.destinationAccountId?.[0]}
           label="To account"
           name="destinationAccountId"
+          defaultValue={transaction?.destination_account_id ?? undefined}
         />
       </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <Field
+          defaultValue={transaction?.amount}
           error={state.errors?.amount?.[0]}
           help={
             source
@@ -86,7 +112,9 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
           </p>
         )}
         <Field
-          defaultValue={new Date().toISOString().slice(0, 10)}
+          defaultValue={
+            transaction?.date ?? new Date().toISOString().slice(0, 10)
+          }
           error={state.errors?.date?.[0]}
           label="Date"
           name="date"
@@ -96,6 +124,7 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
       {source?.currency === "CLP" && (
         <div className="rounded-2xl bg-emerald-50/70 p-4">
           <Field
+            defaultValue={initialRate}
             error={state.errors?.exchangeRate?.[0]}
             help="Enter the rate shown by your bank, for example 910 CLP per USD."
             inputMode="decimal"
@@ -122,6 +151,7 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
           id="notes"
           maxLength={2000}
           name="notes"
+          defaultValue={transaction?.notes ?? ""}
         />
         <ErrorText message={state.errors?.notes?.[0]} />
       </div>
@@ -139,7 +169,7 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
           disabled={pending || insufficient}
           type="submit"
         >
-          {pending ? "Saving…" : "Add transfer"}
+          {pending ? "Saving…" : transaction ? "Save changes" : "Add transfer"}
         </button>
         <Link
           className="rounded-xl px-5 py-3 text-neutral-600 hover:bg-neutral-100"
@@ -154,12 +184,14 @@ export function TransferForm({ accounts }: { accounts: Account[] }) {
 
 function AccountSelect({
   accounts,
+  defaultValue,
   error,
   label,
   name,
   onChange,
 }: {
   accounts: Account[];
+  defaultValue?: string;
   error?: string;
   label: string;
   name: string;
@@ -172,7 +204,7 @@ function AccountSelect({
       </label>
       <select
         className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
-        defaultValue=""
+        defaultValue={defaultValue ?? ""}
         id={name}
         name={name}
         onChange={(event) => onChange?.(event.target.value)}

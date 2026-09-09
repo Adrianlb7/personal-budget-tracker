@@ -6,9 +6,11 @@ import {
   CreditCard,
   Plus,
   ReceiptText,
+  Pencil,
   XCircle,
 } from "lucide-react";
 import { PayButton } from "@/components/recurring/pay-button";
+import type { Account } from "@/domain/accounts/types";
 import { setRecurringStatus } from "@/domain/recurring/actions";
 import {
   installmentProgress,
@@ -34,16 +36,29 @@ export default async function RecurringPage({
       : "active";
   const user = await requireUser();
   const supabase = await createClient();
-  const { data, error } = await supabase
-    .from("recurring_commitments")
-    .select(
-      "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
-    )
-    .eq("user_id", user.id)
-    .eq("status", status)
-    .order("next_due_on");
-  if (error) throw new Error("Recurring payments could not be loaded.");
-  const items = (data ?? []) as RecurringCommitment[];
+  const [commitmentsResult, accountsResult] = await Promise.all([
+    supabase
+      .from("recurring_commitments")
+      .select(
+        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("status", status)
+      .order("next_due_on"),
+    supabase
+      .from("account_details")
+      .select(
+        "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("currency", "USD")
+      .is("archived_at", null)
+      .order("name"),
+  ]);
+  if (commitmentsResult.error || accountsResult.error)
+    throw new Error("Recurring payments could not be loaded.");
+  const items = (commitmentsResult.data ?? []) as RecurringCommitment[];
+  const paymentAccounts = (accountsResult.data ?? []) as Account[];
   const currencies = [...new Set(items.map((item) => item.currency))];
   return (
     <section className="mx-auto max-w-7xl">
@@ -109,7 +124,11 @@ export default async function RecurringPage({
       {items.length ? (
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           {items.map((item) => (
-            <CommitmentCard item={item} key={item.id} />
+            <CommitmentCard
+              item={item}
+              key={item.id}
+              paymentAccounts={paymentAccounts}
+            />
           ))}
         </div>
       ) : (
@@ -125,7 +144,13 @@ export default async function RecurringPage({
   );
 }
 
-function CommitmentCard({ item }: { item: RecurringCommitment }) {
+function CommitmentCard({
+  item,
+  paymentAccounts,
+}: {
+  item: RecurringCommitment;
+  paymentAccounts: Account[];
+}) {
   const progress = installmentProgress(item);
   const Icon = item.kind === "subscription" ? CreditCard : ReceiptText;
   return (
@@ -141,9 +166,7 @@ function CommitmentCard({ item }: { item: RecurringCommitment }) {
           </p>
           {item.kind === "external_installment" && (
             <p className="mt-1 text-xs text-neutral-400">
-              {item.payment_method === "savings_reimbursement"
-                ? "Savings reimbursement"
-                : "External payment"}
+              Payment method chosen when paid
             </p>
           )}
         </div>
@@ -168,18 +191,16 @@ function CommitmentCard({ item }: { item: RecurringCommitment }) {
         </div>
       )}
       <div className="mt-5 flex gap-2 border-t pt-4">
-        {item.status === "active" &&
-          (item.kind === "subscription" ||
-            item.payment_method === "external_expense" ||
-            item.destination_account_id) && <PayButton id={item.id} />}
-        {item.status === "active" &&
-          item.kind === "external_installment" &&
-          item.payment_method === "savings_reimbursement" &&
-          !item.destination_account_id && (
-            <span className="px-2 py-1.5 text-sm text-amber-700">
-              Savings destination required
-            </span>
-          )}
+        {item.status === "active" && (
+          <PayButton accounts={paymentAccounts} id={item.id} kind={item.kind} />
+        )}
+        <Link
+          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100"
+          href={`/app/recurring/${item.id}/edit`}
+        >
+          <Pencil className="size-4" />
+          Edit
+        </Link>
         {item.status === "paused" ? (
           <StatusButton
             icon={CirclePlay}

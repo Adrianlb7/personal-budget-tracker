@@ -14,7 +14,7 @@ export function LiquidDashboardBackground() {
     const scrollbarStyle = document.createElement("style");
     scrollbarStyle.dataset.dashboardScrollbar = "true";
     scrollbarStyle.textContent =
-      "html.dashboard-scrollbar-hidden, body.dashboard-scrollbar-hidden { scrollbar-width: none !important; } html.dashboard-scrollbar-hidden::-webkit-scrollbar, body.dashboard-scrollbar-hidden::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; background: transparent !important; }";
+      "html.dashboard-scrollbar-hidden, body.dashboard-scrollbar-hidden, .dashboard-account-scroll { scrollbar-width: none !important; } html.dashboard-scrollbar-hidden::-webkit-scrollbar, body.dashboard-scrollbar-hidden::-webkit-scrollbar, .dashboard-account-scroll::-webkit-scrollbar { width: 0 !important; height: 0 !important; display: none !important; background: transparent !important; }";
     document.head.appendChild(scrollbarStyle);
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",

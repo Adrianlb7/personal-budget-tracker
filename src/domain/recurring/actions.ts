@@ -33,18 +33,10 @@ export async function createRecurringCommitment(
 
   const user = await requireUser();
   const supabase = await createClient();
-  const { data: account } = await supabase
-    .from("accounts")
-    .select("currency")
-    .eq("id", result.data.accountId)
-    .eq("user_id", user.id)
-    .is("archived_at", null)
-    .maybeSingle();
-  if (!account) return { message: "Choose an active account." };
   const { error } = await supabase.from("recurring_commitments").insert({
-    account_id: result.data.accountId,
+    account_id: null,
     amount: result.data.amount,
-    currency: account.currency,
+    currency: "USD",
     destination_account_id: result.data.destinationAccountId,
     ends_on: result.data.endsOn || null,
     frequency: result.data.frequency,
@@ -63,6 +55,72 @@ export async function createRecurringCommitment(
   redirect("/app/recurring");
 }
 
+export async function updateRecurringCommitment(
+  id: string,
+  _state: RecurringFormState,
+  formData: FormData,
+): Promise<RecurringFormState> {
+  const result = recurringSchema.safeParse({
+    accountId: formData.get("accountId"),
+    amount: formData.get("amount"),
+    destinationAccountId: formData.get("destinationAccountId") ?? "",
+    endsOn: formData.get("endsOn") ?? "",
+    frequency: formData.get("frequency"),
+    installmentCount: formData.get("installmentCount") ?? "",
+    installmentsCompleted: formData.get("installmentsCompleted") ?? "",
+    kind: formData.get("kind"),
+    name: recurringNameOrDefault(formData.get("name"), formData.get("kind")),
+    nextDueOn: formData.get("nextDueOn"),
+    paymentMethod: formData.get("paymentMethod") ?? "external_expense",
+    startsOn: formData.get("startsOn"),
+  });
+  if (!result.success) return { errors: result.error.flatten().fieldErrors };
+
+  const user = await requireUser();
+  const supabase = await createClient();
+  const { data: existing, error: loadError } = await supabase
+    .from("recurring_commitments")
+    .select("kind,status")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (loadError || !existing)
+    return { message: "The recurring payment could not be found." };
+  if (existing.kind !== result.data.kind)
+    return { message: "The commitment type cannot be changed." };
+
+  const completed = result.data.installmentsCompleted;
+  const total = result.data.installmentCount;
+  const status =
+    result.data.kind === "external_installment" &&
+    completed !== null &&
+    total !== null &&
+    completed >= total
+      ? "completed"
+      : existing.status === "completed"
+        ? "active"
+        : existing.status;
+  const { error } = await supabase
+    .from("recurring_commitments")
+    .update({
+      amount: result.data.amount,
+      ends_on: result.data.endsOn || null,
+      frequency: result.data.frequency,
+      installment_count: total,
+      installments_completed: completed,
+      name: result.data.name,
+      next_due_on: result.data.nextDueOn,
+      starts_on: result.data.startsOn,
+      status,
+    })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  if (error) return { message: "The recurring payment could not be updated." };
+  revalidatePath("/app");
+  revalidatePath("/app/recurring");
+  redirect("/app/recurring");
+}
+
 export type PayRecurringState = {
   message?: string;
 };
@@ -70,25 +128,30 @@ export type PayRecurringState = {
 export async function payRecurringCommitment(
   id: string,
   _state: PayRecurringState,
+  formData: FormData,
 ): Promise<PayRecurringState> {
   void _state;
   await requireUser();
   const supabase = await createClient();
   const paidOn = new Date().toISOString().slice(0, 10);
   const { data, error } = await supabase.rpc("pay_recurring_commitment", {
+    p_account_id: formData.get("accountId") || null,
     p_commitment_id: id,
+    p_destination_account_id: formData.get("destinationAccountId") || null,
     p_paid_on: paidOn,
+    p_payment_method: formData.get("paymentMethod") || "external_expense",
   });
   if (error || !data)
     return {
-      message:
-        "Payment could not be recorded. Apply the latest Supabase migration and try again.",
+      message: error?.message.includes("Insufficient funds")
+        ? "This payment is higher than the selected account's available balance."
+        : (error?.message ?? "Payment could not be recorded."),
     };
   revalidatePath("/app");
   revalidatePath("/app/accounts");
   revalidatePath("/app/recurring");
   revalidatePath("/app/transactions");
-  return {};
+  redirect("/app/recurring");
 }
 
 export async function setRecurringStatus(id: string, status: RecurringStatus) {

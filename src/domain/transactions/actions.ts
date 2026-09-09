@@ -89,6 +89,47 @@ export async function createTransaction(
   redirect("/app/transactions");
 }
 
+export async function updateTransaction(
+  transactionId: string,
+  _state: TransactionFormState,
+  formData: FormData,
+): Promise<TransactionFormState> {
+  const result = transactionSchema.safeParse({
+    accountId: formData.get("accountId"),
+    amount: formData.get("amount"),
+    category: formData.get("category"),
+    date: formData.get("date"),
+    description: transactionDescriptionOrDefault(
+      formData.get("description"),
+      formData.get("type"),
+    ),
+    notes: formData.get("notes") ?? "",
+    type: formData.get("type"),
+  });
+  if (!result.success) return { errors: result.error.flatten().fieldErrors };
+  await requireUser();
+  const supabase = await createClient();
+  const requestedCategory = normalizeCategoryName(result.data.category);
+  const { data, error } = await supabase.rpc("update_financial_transaction", {
+    p_account_id: result.data.accountId,
+    p_amount: result.data.amount,
+    p_category_name: requestedCategory,
+    p_date: result.data.date,
+    p_description: result.data.description,
+    p_notes: result.data.notes,
+    p_transaction_id: transactionId,
+    p_type: result.data.type,
+  });
+  if (error || !data)
+    return {
+      message: error?.message.includes("Insufficient funds")
+        ? "This expense is higher than the account's available balance."
+        : (error?.message ?? "The transaction could not be updated."),
+    };
+  revalidateTransactionPaths();
+  redirect("/app/transactions");
+}
+
 export async function deleteTransaction(transactionId: string) {
   await requireUser();
   const supabase = await createClient();
@@ -189,4 +230,49 @@ export async function createTransfer(
   revalidatePath("/app/accounts");
   revalidatePath("/app/transactions");
   redirect("/app/transactions");
+}
+
+export async function updateTransfer(
+  transactionId: string,
+  _state: TransferFormState,
+  formData: FormData,
+): Promise<TransferFormState> {
+  const result = transferSchema.safeParse({
+    amount: formData.get("amount"),
+    date: formData.get("date"),
+    description: formData.get("description"),
+    destinationAccountId: formData.get("destinationAccountId"),
+    exchangeRate: formData.get("exchangeRate") ?? "",
+    notes: formData.get("notes") ?? "",
+    sourceAccountId: formData.get("sourceAccountId"),
+  });
+  if (!result.success) return { errors: result.error.flatten().fieldErrors };
+  await requireUser();
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("update_account_transfer", {
+    p_amount: result.data.amount,
+    p_clp_per_usd: result.data.exchangeRate || null,
+    p_date: result.data.date,
+    p_description: result.data.description,
+    p_destination_account_id: result.data.destinationAccountId,
+    p_notes: result.data.notes,
+    p_source_account_id: result.data.sourceAccountId,
+    p_transaction_id: transactionId,
+  });
+  if (error || !data)
+    return {
+      message: error?.message.includes("Insufficient funds")
+        ? "This transfer is higher than the source account's available balance."
+        : (error?.message ?? "The transfer could not be updated."),
+    };
+  revalidateTransactionPaths();
+  redirect("/app/transactions");
+}
+
+function revalidateTransactionPaths() {
+  revalidatePath("/app");
+  revalidatePath("/app/accounts");
+  revalidatePath("/app/recurring");
+  revalidatePath("/app/reports");
+  revalidatePath("/app/transactions");
 }

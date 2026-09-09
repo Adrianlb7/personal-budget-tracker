@@ -2,35 +2,40 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import type { Account } from "@/domain/accounts/types";
-import { createRecurringCommitment } from "@/domain/recurring/actions";
-import type { RecurringKind } from "@/domain/recurring/types";
+import {
+  createRecurringCommitment,
+  updateRecurringCommitment,
+} from "@/domain/recurring/actions";
+import type {
+  RecurringCommitment,
+  RecurringKind,
+} from "@/domain/recurring/types";
 
 export function RecurringForm({
-  accounts,
+  commitment,
   kind,
 }: {
-  accounts: Account[];
+  commitment?: RecurringCommitment;
   kind: RecurringKind;
 }) {
-  const [state, action, pending] = useActionState(
-    createRecurringCommitment,
-    {},
-  );
+  const submitAction = commitment
+    ? updateRecurringCommitment.bind(null, commitment.id)
+    : createRecurringCommitment;
+  const [state, action, pending] = useActionState(submitAction, {});
   const installment = kind === "external_installment";
   const today = new Date().toISOString().slice(0, 10);
-  const [hasEndDate, setHasEndDate] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<
-    "external_expense" | "savings_reimbursement"
-  >("external_expense");
+  const [hasEndDate, setHasEndDate] = useState(Boolean(commitment?.ends_on));
   return (
     <form
       action={action}
       className="mt-8 max-w-2xl space-y-6 rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-sm sm:p-8"
     >
       <input name="kind" type="hidden" value={kind} />
-      <input name="paymentMethod" type="hidden" value={paymentMethod} />
+      <input name="paymentMethod" type="hidden" value="external_expense" />
+      <input name="accountId" type="hidden" value="" />
+      <input name="destinationAccountId" type="hidden" value="" />
       <Field
+        defaultValue={commitment?.name}
         error={state.errors?.name?.[0]}
         label="Name"
         name="name"
@@ -39,30 +44,9 @@ export function RecurringForm({
         }
         required={false}
       />
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div>
-          <label className="text-sm font-medium" htmlFor="accountId">
-            {installment ? "Pay from" : "Payment account"}
-          </label>
-          <select
-            className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
-            defaultValue=""
-            id="accountId"
-            name="accountId"
-            required
-          >
-            <option disabled value="">
-              Choose an account
-            </option>
-            {accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.name} · {account.currency}
-              </option>
-            ))}
-          </select>
-          <ErrorText message={state.errors?.accountId?.[0]} />
-        </div>
+      <div>
         <Field
+          defaultValue={commitment?.amount}
           error={state.errors?.amount?.[0]}
           inputMode="decimal"
           label={installment ? "Payment amount" : "Recurring amount"}
@@ -70,60 +54,6 @@ export function RecurringForm({
           placeholder="0"
         />
       </div>
-      {installment ? (
-        <div className="space-y-4">
-          <div>
-            <p className="text-sm font-medium">Payment method</p>
-            <div className="mt-2 grid gap-2 rounded-2xl bg-neutral-100 p-1 sm:grid-cols-2">
-              <MethodButton
-                active={paymentMethod === "external_expense"}
-                description="Record an installment expense"
-                label="Pay externally"
-                onClick={() => setPaymentMethod("external_expense")}
-              />
-              <MethodButton
-                active={paymentMethod === "savings_reimbursement"}
-                description="Move money back to savings"
-                label="Reimburse savings"
-                onClick={() => setPaymentMethod("savings_reimbursement")}
-              />
-            </div>
-          </div>
-          {paymentMethod === "savings_reimbursement" ? (
-            <div>
-              <label
-                className="text-sm font-medium"
-                htmlFor="destinationAccountId"
-              >
-                Savings destination
-              </label>
-              <select
-                className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
-                defaultValue=""
-                id="destinationAccountId"
-                name="destinationAccountId"
-                required
-              >
-                <option disabled value="">
-                  Choose the savings account
-                </option>
-                {accounts
-                  .filter((account) => account.type === "savings")
-                  .map((account) => (
-                    <option key={account.id} value={account.id}>
-                      {account.name} · {account.currency}
-                    </option>
-                  ))}
-              </select>
-              <ErrorText message={state.errors?.destinationAccountId?.[0]} />
-            </div>
-          ) : (
-            <input name="destinationAccountId" type="hidden" value="" />
-          )}
-        </div>
-      ) : (
-        <input name="destinationAccountId" type="hidden" value="" />
-      )}
       <div className="grid gap-6 sm:grid-cols-3">
         <div>
           <label className="text-sm font-medium" htmlFor="frequency">
@@ -131,7 +61,7 @@ export function RecurringForm({
           </label>
           <select
             className="mt-2 w-full rounded-xl border bg-white px-4 py-3"
-            defaultValue="monthly"
+            defaultValue={commitment?.frequency ?? "monthly"}
             id="frequency"
             name="frequency"
           >
@@ -141,14 +71,14 @@ export function RecurringForm({
           </select>
         </div>
         <Field
-          defaultValue={today}
+          defaultValue={commitment?.starts_on ?? today}
           error={state.errors?.startsOn?.[0]}
           label="Starts"
           name="startsOn"
           type="date"
         />
         <Field
-          defaultValue={today}
+          defaultValue={commitment?.next_due_on ?? today}
           error={state.errors?.nextDueOn?.[0]}
           label="Next due"
           name="nextDueOn"
@@ -158,6 +88,7 @@ export function RecurringForm({
       {installment && (
         <div className="grid gap-6 sm:grid-cols-2">
           <Field
+            defaultValue={commitment?.installment_count?.toString()}
             error={state.errors?.installmentCount?.[0]}
             label="Total installments"
             name="installmentCount"
@@ -165,7 +96,7 @@ export function RecurringForm({
             type="number"
           />
           <Field
-            defaultValue="0"
+            defaultValue={commitment?.installments_completed?.toString() ?? "0"}
             error={state.errors?.installmentsCompleted?.[0]}
             label="Already completed"
             name="installmentsCompleted"
@@ -201,7 +132,7 @@ export function RecurringForm({
         {hasEndDate ? (
           <div className="mt-4 border-t pt-4">
             <Field
-              defaultValue={today}
+              defaultValue={commitment?.ends_on ?? today}
               error={state.errors?.endsOn?.[0]}
               label="Ends on"
               name="endsOn"
@@ -228,9 +159,11 @@ export function RecurringForm({
         >
           {pending
             ? "Saving…"
-            : installment
-              ? "Add installment"
-              : "Add subscription"}
+            : commitment
+              ? "Save changes"
+              : installment
+                ? "Add installment"
+                : "Add subscription"}
         </button>
         <Link
           className="rounded-xl px-5 py-3 text-neutral-600 hover:bg-neutral-100"
@@ -240,32 +173,6 @@ export function RecurringForm({
         </Link>
       </div>
     </form>
-  );
-}
-
-function MethodButton({
-  active,
-  description,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  description: string;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      aria-pressed={active}
-      className={`rounded-xl px-4 py-3 text-left transition ${active ? "bg-white shadow-sm" : "text-neutral-500 hover:text-neutral-800"}`}
-      onClick={onClick}
-      type="button"
-    >
-      <span className="block text-sm font-medium">{label}</span>
-      <span className="mt-0.5 block text-xs text-neutral-400">
-        {description}
-      </span>
-    </button>
   );
 }
 
