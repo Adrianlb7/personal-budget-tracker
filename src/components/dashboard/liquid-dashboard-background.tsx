@@ -19,8 +19,11 @@ export function LiquidDashboardBackground() {
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const touchFirst = window.matchMedia(
+      "(hover: none), (pointer: coarse), (max-width: 767px)",
+    ).matches;
 
-    if (reducedMotion) {
+    if (reducedMotion || touchFirst) {
       return () => {
         document.documentElement.classList.remove("dashboard-scrollbar-hidden");
         document.body.classList.remove("dashboard-scrollbar-hidden");
@@ -56,6 +59,10 @@ export function LiquidDashboardBackground() {
         `${((0.5 - currentY / window.innerHeight) * 9).toFixed(2)}px`,
       );
       frame = requestAnimationFrame(render);
+    };
+    const updateAnimation = () => {
+      cancelAnimationFrame(frame);
+      if (!document.hidden) frame = requestAnimationFrame(render);
     };
     const move = (event: PointerEvent) => {
       targetX = event.clientX;
@@ -110,13 +117,15 @@ export function LiquidDashboardBackground() {
 
     window.addEventListener("pointermove", move, { passive: true });
     window.addEventListener("pointerdown", ripple, { passive: true });
-    frame = requestAnimationFrame(render);
+    document.addEventListener("visibilitychange", updateAnimation);
+    updateAnimation();
     return () => {
       document.documentElement.classList.remove("dashboard-scrollbar-hidden");
       document.body.classList.remove("dashboard-scrollbar-hidden");
       scrollbarStyle.remove();
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerdown", ripple);
+      document.removeEventListener("visibilitychange", updateAnimation);
       cancelAnimationFrame(frame);
     };
   }, []);
@@ -133,6 +142,7 @@ export function LiquidDashboardBackground() {
       }}
     >
       <div
+        className="dashboard-liquid-base"
         style={{
           backgroundImage:
             "linear-gradient(rgba(244,245,242,0.4), rgba(244,245,242,0.4)), url('/assets/dashboard-liquid.jpg')",
@@ -145,6 +155,7 @@ export function LiquidDashboardBackground() {
         }}
       />
       <div
+        className="dashboard-liquid-motion-layer"
         style={{
           backgroundImage: "url('/assets/dashboard-liquid.jpg')",
           backgroundPosition: "center 46%",
@@ -163,6 +174,7 @@ export function LiquidDashboardBackground() {
         }}
       />
       <div
+        className="dashboard-liquid-motion-layer"
         style={{
           backgroundImage: "url('/assets/dashboard-liquid.jpg')",
           backgroundPosition: "center 46%",
@@ -181,6 +193,7 @@ export function LiquidDashboardBackground() {
         }}
       />
       <div
+        className="dashboard-liquid-motion-layer"
         style={{
           background:
             "radial-gradient(circle 320px at var(--liquid-x, 62vw) var(--liquid-y, 38vh), rgba(110,231,183,.085), rgba(20,184,166,.03) 42%, transparent 86%)",

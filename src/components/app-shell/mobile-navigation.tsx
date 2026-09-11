@@ -57,7 +57,7 @@ export function MobileNavigation() {
         aria-hidden={!open}
         aria-label="More navigation"
         aria-modal="true"
-        className={`fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] left-4 z-50 rounded-[1.75rem] border border-black/[0.07] bg-white/95 p-4 shadow-[0_24px_70px_-28px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition duration-300 md:hidden ${
+        className={`fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] left-4 z-50 rounded-[1.75rem] border border-black/[0.07] bg-white/95 p-4 shadow-[0_20px_55px_-30px_rgba(0,0,0,0.4)] backdrop-blur-md transition duration-300 will-change-transform md:hidden ${
           open
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0"
@@ -106,7 +106,7 @@ export function MobileNavigation() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed right-0 bottom-0 left-0 z-50 border-t border-black/[0.06] bg-white/92 px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-12px_40px_-28px_rgba(0,0,0,0.4)] backdrop-blur-2xl md:hidden"
+        className="fixed right-0 bottom-0 left-0 z-50 border-t border-black/[0.06] bg-white/95 px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_32px_-26px_rgba(0,0,0,0.32)] backdrop-blur-md md:hidden"
       >
         <div className="mx-auto grid max-w-lg grid-cols-4">
           {primaryItems.map(({ href, icon: Icon, label, match }) => {

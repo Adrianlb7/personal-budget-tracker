@@ -5,5 +5,6 @@
 - [x] Add production-only service worker registration.
 - [x] Add a financial-data-safe offline fallback.
 - [x] Build the approved responsive mobile dashboard and bottom navigation.
+- [x] Optimize mobile rendering while preserving the desktop liquid effects.
 - [ ] Design and add final maskable and Apple touch icons.
 - [ ] Verify installation, updating, and offline behavior on iOS and desktop.

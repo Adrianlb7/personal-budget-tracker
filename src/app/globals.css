@@ -62,6 +62,18 @@ html.dashboard-scrollbar-hidden::-webkit-scrollbar {
   color: #ffffff !important;
 }
 
+@media (hover: none), (pointer: coarse), (max-width: 767px) {
+  .dashboard-liquid-base {
+    background-size: cover !important;
+    filter: saturate(0.84) contrast(0.97) !important;
+    inset: 0 !important;
+  }
+
+  .dashboard-liquid-motion-layer {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-dashboard-swap {
     animation: none;
