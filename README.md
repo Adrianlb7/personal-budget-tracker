@@ -1,4 +1,4 @@
-# Personal Finance Hub
+# Orba
 
 A personal-use financial dashboard for understanding current money, account locations, cash flow, recurring commitments, savings, investments, goals, and net worth over time.
 

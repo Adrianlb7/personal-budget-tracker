@@ -24,3 +24,16 @@ test("redirects an unauthenticated visitor away from the app", async ({
     page.getByRole("heading", { name: "Welcome back" }),
   ).toBeVisible();
 });
+
+test("publishes the Orba install manifest", async ({ request }) => {
+  const response = await request.get("/manifest.webmanifest");
+  const manifest = await response.json();
+
+  expect(response.ok()).toBe(true);
+  expect(manifest).toMatchObject({
+    display: "standalone",
+    name: "Orba",
+    short_name: "Orba",
+    start_url: "/app",
+  });
+});

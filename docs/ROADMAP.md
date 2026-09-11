@@ -47,3 +47,7 @@ Track financial goals optionally associated with existing savings accounts.
 ## Phase 13: Reports
 
 Add net worth over time, income vs expenses, savings rate, spending by category, and cash-flow reports.
+
+## Phase 14: Progressive Web App
+
+Publish Orba as an installable, secure PWA with standalone presentation, a safe offline fallback, responsive mobile navigation, and platform-ready icons.

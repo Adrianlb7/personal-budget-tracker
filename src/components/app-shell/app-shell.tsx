@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { MobileNavigation } from "@/components/app-shell/mobile-navigation";
 
 const navigation = [
   { href: "/app", label: "Dashboard" },
@@ -19,7 +20,7 @@ export function AppShell({
   return (
     <div className="relative isolate min-h-screen md:grid md:grid-cols-[240px_1fr]">
       <aside
-        className="app-sidebar relative z-20 border-b border-black/[0.06] p-6 md:sticky md:top-0 md:h-screen md:border-r md:border-b-0"
+        className="app-sidebar relative z-20 hidden border-b border-black/[0.06] p-6 md:sticky md:top-0 md:block md:h-screen md:border-r md:border-b-0"
         style={{
           backdropFilter: "blur(46px) saturate(0.9)",
           background: "rgba(255, 255, 255, 0.96)",
@@ -38,7 +39,7 @@ export function AppShell({
           <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-900 text-white">
             <Landmark aria-hidden="true" className="size-5" />
           </span>
-          Finance Hub
+          Orba
         </Link>
         <nav aria-label="Primary" className="mt-10 hidden space-y-1 md:block">
           {navigation.map((item) => (
@@ -64,9 +65,10 @@ export function AppShell({
           <SignOutButton />
         </div>
       </aside>
-      <main className="relative z-10 min-w-0 p-5 sm:p-8 lg:p-10">
+      <main className="relative z-10 min-w-0 px-4 pt-6 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:p-8 lg:p-10">
         {children}
       </main>
+      <MobileNavigation />
     </div>
   );
 }

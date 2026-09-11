@@ -4,7 +4,9 @@ import {
   ArrowRight,
   ArrowUpRight,
   CalendarClock,
+  ChevronRight,
   Landmark,
+  Plus,
   PiggyBank,
   Sparkles,
   Bitcoin,
@@ -18,6 +20,11 @@ import {
 } from "@/components/dashboard/dashboard-privacy";
 import { SpendingChart } from "@/components/dashboard/spending-chart";
 import type { Account, Currency } from "@/domain/accounts/types";
+import {
+  calculateBudgetProgress,
+  calculateBudgetTotals,
+} from "@/domain/budgets/calculations";
+import type { MonthlyBudget } from "@/domain/budgets/types";
 import {
   addConvertedValueToNetWorth,
   calculateAvailableByCurrency,
@@ -41,41 +48,62 @@ export default async function DashboardPage() {
   const supabase = await createClient();
   const months = recentMonths(6);
   const weeks = recentWeeks(6);
-  const [accountsResult, transactionsResult, recurringResult, btcPrice] =
-    await Promise.all([
-      supabase
-        .from("account_details")
-        .select(
-          "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
-        )
-        .eq("user_id", user.id)
-        .is("archived_at", null)
-        .order("created_at"),
-      supabase
-        .from("transaction_details")
-        .select(
-          "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
-        )
-        .eq("user_id", user.id)
-        .gte("date", `${months[0].key}-01`)
-        .order("date", { ascending: false }),
-      supabase
-        .from("recurring_commitments")
-        .select(
-          "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
-        )
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .order("next_due_on")
-        .limit(3),
-      getBtcUsdPrice(),
-    ]);
+  const [
+    accountsResult,
+    transactionsResult,
+    recurringResult,
+    budgetsResult,
+    btcPrice,
+  ] = await Promise.all([
+    supabase
+      .from("account_details")
+      .select(
+        "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
+      )
+      .eq("user_id", user.id)
+      .is("archived_at", null)
+      .order("created_at"),
+    supabase
+      .from("transaction_details")
+      .select(
+        "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
+      )
+      .eq("user_id", user.id)
+      .gte("date", `${months[0].key}-01`)
+      .order("date", { ascending: false }),
+    supabase
+      .from("recurring_commitments")
+      .select(
+        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .order("next_due_on")
+      .limit(3),
+    supabase
+      .from("monthly_budgets")
+      .select(
+        "id,user_id,category_id,amount,currency,month,created_at,updated_at",
+      )
+      .eq("user_id", user.id)
+      .eq("month", `${months.at(-1)!.key}-01`),
+    getBtcUsdPrice(),
+  ]);
 
-  if (accountsResult.error || transactionsResult.error || recurringResult.error)
+  if (
+    accountsResult.error ||
+    transactionsResult.error ||
+    recurringResult.error ||
+    budgetsResult.error
+  )
     throw new Error("Your dashboard could not be loaded.");
   const accounts = (accountsResult.data ?? []) as Account[];
   const transactions = (transactionsResult.data ?? []) as TransactionDetail[];
   const upcoming = (recurringResult.data ?? []) as RecurringCommitment[];
+  const budgets = (budgetsResult.data ?? []).map((budget) => ({
+    ...budget,
+    category_name: "",
+  })) as MonthlyBudget[];
   const preferredCurrency: Currency = "USD";
   const usdAccounts = accounts.filter((account) => account.currency === "USD");
   const available = calculateAvailableByCurrency(usdAccounts);
@@ -84,6 +112,17 @@ export default async function DashboardPage() {
     preferredCurrency,
     months.at(-1)!.key,
   );
+  const budgetTotals = calculateBudgetTotals(
+    calculateBudgetProgress(budgets, transactions),
+    preferredCurrency,
+  );
+  const budgetUsage = decimal(budgetTotals.budgeted).isZero()
+    ? null
+    : decimal(budgetTotals.spent)
+        .dividedBy(budgetTotals.budgeted)
+        .times(100)
+        .toDecimalPlaces(0)
+        .toNumber();
   const spendingTrend = calculateSpendingTrend(
     transactions,
     preferredCurrency,
@@ -110,24 +149,35 @@ export default async function DashboardPage() {
     btcUsdValue,
     "USD",
   );
+  const dailyMessage = dailyMoneyMessage(new Date());
 
   return (
     <>
       <LiquidDashboardBackground />
       <DashboardHoverRegion>
-        <header className="flex flex-wrap items-end justify-between gap-5">
+        <header className="flex items-start justify-between gap-3 sm:items-end">
           <div>
-            <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+            <h1 className="text-[2rem] leading-[1.02] font-semibold tracking-[-0.04em] sm:text-4xl">
               Good {dayPeriod()}, <span className="font-extrabold">Adri</span>
             </h1>
-            <p className="mt-2 text-neutral-500">
+            <p className="mt-2 hidden text-neutral-500 sm:block">
               Here’s where your money stands today.
+            </p>
+            <p className="mt-2 text-sm text-neutral-500 sm:hidden">
+              {dailyMessage}
             </p>
           </div>
           <div className="flex items-center gap-3">
             <DashboardPrivacyToggle />
+            <div
+              aria-label="Adri profile"
+              className="relative flex size-12 shrink-0 items-center justify-center rounded-full bg-neutral-950 text-lg font-medium text-white shadow-sm sm:hidden"
+            >
+              A
+              <span className="absolute right-0 bottom-0 size-3.5 rounded-full border-2 border-white bg-emerald-600" />
+            </div>
             <Link
-              className="inline-flex items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-neutral-700"
+              className="hidden items-center gap-2 rounded-full bg-neutral-900 px-5 py-3 text-sm font-medium text-white shadow-sm transition hover:bg-neutral-700 sm:inline-flex"
               data-dashboard-hover
               href="/app/transactions/new?type=expense"
             >
@@ -136,15 +186,15 @@ export default async function DashboardPage() {
           </div>
         </header>
 
-        <div className="mt-8 grid gap-5 lg:grid-cols-[1.5fr_1fr]">
+        <div className="mt-7 grid gap-5 sm:mt-8 lg:grid-cols-[1.5fr_1fr]">
           <BalanceOverviewCard
             available={available}
             currency={preferredCurrency}
-            dailyMessage={dailyMoneyMessage(new Date())}
+            dailyMessage={dailyMessage}
             netWorth={netWorth}
           />
 
-          <article className="rounded-[2rem] border border-black/[0.06] bg-white p-7 shadow-[0_16px_45px_-32px_rgba(0,0,0,0.35)]">
+          <article className="hidden rounded-[2rem] border border-black/[0.06] bg-white p-7 shadow-[0_16px_45px_-32px_rgba(0,0,0,0.35)] sm:block">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-neutral-500">Saved this month</p>
@@ -176,7 +226,7 @@ export default async function DashboardPage() {
           </article>
         </div>
 
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-4">
           <MetricCard
             icon={ArrowDownLeft}
             label="Income this month"
@@ -202,8 +252,42 @@ export default async function DashboardPage() {
           />
         </div>
 
-        <div className="mt-5 grid gap-5 xl:grid-cols-[1.35fr_1fr]">
-          <article className="rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:p-7">
+        <Link
+          className="mt-4 block rounded-[1.75rem] border border-black/[0.06] bg-white p-5 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:hidden"
+          href={budgetUsage === null ? "/app/budget" : "/app/reports"}
+        >
+          <div className="flex items-center justify-between">
+            <p className="font-semibold">Spending this month</p>
+            <ChevronRight
+              aria-hidden="true"
+              className="size-5 text-neutral-400"
+            />
+          </div>
+          <p className="mt-3 text-3xl font-semibold tracking-tight text-emerald-950">
+            <MoneyValue>
+              {formatMoney(metrics.expense, preferredCurrency)}
+            </MoneyValue>
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <div className="h-2 flex-1 rounded-full bg-neutral-100">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-900 via-emerald-600 to-emerald-300"
+                style={{ width: `${Math.min(budgetUsage ?? 0, 100)}%` }}
+              />
+            </div>
+            <span className="text-sm text-neutral-400">
+              {budgetUsage === null ? "—" : `${budgetUsage}%`}
+            </span>
+          </div>
+          <p className="mt-5 rounded-2xl bg-emerald-50/70 px-4 py-4 text-sm leading-6 text-neutral-500">
+            {budgetUsage === null
+              ? "Set a monthly budget to measure your spending progress."
+              : "Open your reports to explore this month’s spending insights."}
+          </p>
+        </Link>
+
+        <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-[1.35fr_1fr]">
+          <article className="hidden rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:block sm:p-7">
             <SpendingChart
               currency={preferredCurrency}
               monthly={spendingTrend}
@@ -211,11 +295,15 @@ export default async function DashboardPage() {
             />
           </article>
 
-          <article className="rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:p-7">
+          <article className="rounded-[1.75rem] border border-black/[0.06] bg-white p-5 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-7">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold">Your accounts</p>
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-sm text-neutral-500 sm:hidden">
+                  {accounts.length}{" "}
+                  {accounts.length === 1 ? "account" : "accounts"}
+                </p>
+                <p className="mt-1 hidden text-sm text-neutral-500 sm:block">
                   Current balances
                 </p>
               </div>
@@ -274,6 +362,14 @@ export default async function DashboardPage() {
             </div>
           </article>
         </div>
+
+        <Link
+          aria-label="Add transaction"
+          className="fixed right-5 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-30 flex size-14 items-center justify-center rounded-full bg-emerald-950 text-white shadow-[0_14px_32px_-12px_rgba(3,78,59,0.75)] transition active:scale-95 sm:hidden"
+          href="/app/transactions/new?type=expense"
+        >
+          <Plus aria-hidden="true" className="size-7" />
+        </Link>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_1fr]">
           <article className="rounded-[2rem] border border-black/[0.06] bg-white p-6 sm:p-7">
@@ -409,18 +505,20 @@ function MetricCard({
     red: "bg-red-50 text-red-600",
   };
   return (
-    <article className="rounded-[1.6rem] border border-black/[0.06] bg-white p-5 shadow-[0_14px_38px_-32px_rgba(0,0,0,0.3)]">
+    <article className="min-w-0 rounded-[1.35rem] border border-black/[0.06] bg-white p-3 shadow-[0_14px_38px_-32px_rgba(0,0,0,0.3)] sm:rounded-[1.6rem] sm:p-5">
       <span
         className={`flex size-9 items-center justify-center rounded-xl ${colors[tone]}`}
       >
         <Icon aria-hidden="true" className="size-4" />
       </span>
-      <p className="mt-5 text-sm text-neutral-500">{label}</p>
-      <p className="mt-1 text-xl font-semibold tracking-tight">
+      <p className="mt-3 truncate text-[0.68rem] text-neutral-500 sm:mt-5 sm:text-sm">
+        {label}
+      </p>
+      <p className="mt-1 truncate text-sm font-semibold tracking-tight sm:text-xl">
         <MoneyValue>{value}</MoneyValue>
       </p>
       {detail && (
-        <p className="mt-1 text-xs text-neutral-400">
+        <p className="mt-1 truncate text-[0.6rem] text-neutral-400 sm:text-xs">
           <MoneyValue>{detail}</MoneyValue>
         </p>
       )}

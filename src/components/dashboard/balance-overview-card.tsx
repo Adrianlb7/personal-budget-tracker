@@ -26,7 +26,7 @@ export function BalanceOverviewCard({
   const Icon = view === "netWorth" ? TrendingUp : Landmark;
 
   return (
-    <article className="relative overflow-hidden rounded-[2rem] bg-neutral-950 p-7 text-white shadow-[0_24px_60px_-32px_rgba(0,0,0,0.7)] sm:p-9">
+    <article className="relative overflow-hidden rounded-[1.9rem] bg-neutral-950 p-6 text-white shadow-[0_24px_60px_-32px_rgba(0,0,0,0.7)] sm:rounded-[2rem] sm:p-9">
       <div className="absolute -top-24 -right-20 size-72 rounded-full bg-emerald-500/20 blur-3xl" />
       <div className="relative">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -84,8 +84,13 @@ export function BalanceOverviewCard({
           <p className="mt-2 text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
             <MoneyValue strong>{formatMoney(amount, currency)}</MoneyValue>
           </p>
-          <p className="mt-4 max-w-md text-sm leading-6 text-white/55">
+          <p className="mt-4 hidden max-w-md text-sm leading-6 text-white/55 sm:block">
             {view === "netWorth" ? dailyMessage : "Ready to use"}
+          </p>
+          <p className="mt-3 text-sm text-white/50 sm:hidden">
+            {view === "netWorth"
+              ? "Total value across your USD accounts"
+              : "Ready to use"}
           </p>
         </div>
         {totals.some((item) => item.currency !== currency) && (

@@ -95,7 +95,9 @@ export function PayButton({
               name="accountId"
               required
             >
-              <option disabled value="">Choose an account</option>
+              <option disabled value="">
+                Choose an account
+              </option>
               {accounts.map((account) => (
                 <option key={account.id} value={account.id}>
                   {account.name} · {account.currency}
@@ -118,7 +120,9 @@ export function PayButton({
                     name="destinationAccountId"
                     required
                   >
-                    <option disabled value="">Choose savings</option>
+                    <option disabled value="">
+                      Choose savings
+                    </option>
                     {accounts
                       .filter((account) => account.type === "savings")
                       .map((account) => (

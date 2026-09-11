@@ -9,7 +9,7 @@ export default function HomePage() {
           <Landmark aria-hidden="true" className="size-6" />
         </div>
         <p className="mb-4 text-sm font-semibold tracking-[0.18em] text-emerald-800 uppercase">
-          Personal Finance Hub
+          Orba
         </p>
         <h1 className="text-5xl leading-tight font-semibold tracking-tight sm:text-7xl">
           A clearer view of your financial life.
