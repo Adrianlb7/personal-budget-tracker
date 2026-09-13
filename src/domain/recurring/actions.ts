@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/require-user";
 import { createClient } from "@/lib/supabase/server";
+import { completesInstallmentPayment } from "./calculations";
 import type { RecurringStatus } from "./types";
 import {
   recurringNameOrDefault,
@@ -131,8 +132,21 @@ export async function payRecurringCommitment(
   formData: FormData,
 ): Promise<PayRecurringState> {
   void _state;
-  await requireUser();
+  const user = await requireUser();
   const supabase = await createClient();
+  const { data: commitment } = await supabase
+    .from("recurring_commitments")
+    .select("kind,installment_count,installments_completed")
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  const completesCommitment = commitment
+    ? completesInstallmentPayment({
+        completed: commitment.installments_completed,
+        kind: commitment.kind,
+        total: commitment.installment_count,
+      })
+    : false;
   const paidOn = new Date().toISOString().slice(0, 10);
   const { data, error } = await supabase.rpc("pay_recurring_commitment", {
     p_account_id: formData.get("accountId") || null,
@@ -151,7 +165,11 @@ export async function payRecurringCommitment(
   revalidatePath("/app/accounts");
   revalidatePath("/app/recurring");
   revalidatePath("/app/transactions");
-  redirect("/app/recurring");
+  redirect(
+    completesCommitment
+      ? "/app/recurring?payment=commitment-completed"
+      : "/app/recurring",
+  );
 }
 
 export async function setRecurringStatus(id: string, status: RecurringStatus) {

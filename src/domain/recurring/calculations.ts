@@ -25,3 +25,20 @@ export function installmentProgress(item: RecurringCommitment) {
     total: item.installment_count,
   };
 }
+
+export function completesInstallmentPayment({
+  completed,
+  kind,
+  total,
+}: {
+  completed: number | null;
+  kind: RecurringCommitment["kind"];
+  total: number | null;
+}) {
+  return (
+    kind === "external_installment" &&
+    total !== null &&
+    total > 0 &&
+    (completed ?? 0) + 1 >= total
+  );
+}

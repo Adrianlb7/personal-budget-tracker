@@ -23,3 +23,5 @@ Track recurring financial commitments while preserving their different accountin
   and any savings destination separately for every recorded payment.
 - Recurring payments are rejected atomically when the selected source account
   does not have enough available funds.
+- Completing the final installment shows a congratulatory confirmation.
+- The active commitment summary is labelled as the next month's bill.

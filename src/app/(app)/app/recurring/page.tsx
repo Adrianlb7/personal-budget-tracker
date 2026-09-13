@@ -9,6 +9,7 @@ import {
   Pencil,
   XCircle,
 } from "lucide-react";
+import { CompletionMessage } from "@/components/recurring/completion-message";
 import { PayButton } from "@/components/recurring/pay-button";
 import type { Account } from "@/domain/accounts/types";
 import { setRecurringStatus } from "@/domain/recurring/actions";
@@ -27,9 +28,9 @@ import { createClient } from "@/lib/supabase/server";
 export default async function RecurringPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ payment?: string; status?: string }>;
 }) {
-  const { status: value } = await searchParams;
+  const { payment, status: value } = await searchParams;
   const status: RecurringStatus =
     value === "paused" || value === "cancelled" || value === "completed"
       ? value
@@ -62,6 +63,7 @@ export default async function RecurringPage({
   const currencies = [...new Set(items.map((item) => item.currency))];
   return (
     <section className="mx-auto max-w-7xl">
+      {payment === "commitment-completed" && <CompletionMessage />}
       <header className="flex flex-wrap items-end justify-between gap-5">
         <div>
           <p className="text-sm font-medium text-emerald-800">Commitments</p>
@@ -108,7 +110,7 @@ export default async function RecurringPage({
               className="rounded-full border bg-white px-4 py-2 text-sm"
               key={currency}
             >
-              <span className="text-neutral-400">Monthly estimate</span>{" "}
+              <span className="text-neutral-400">Next month bill</span>{" "}
               <strong className="ml-2">
                 {formatMoney(
                   monthlyCommitmentTotal(

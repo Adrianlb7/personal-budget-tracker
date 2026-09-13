@@ -1,4 +1,8 @@
-import { installmentProgress, monthlyCommitmentTotal } from "./calculations";
+import {
+  completesInstallmentPayment,
+  installmentProgress,
+  monthlyCommitmentTotal,
+} from "./calculations";
 import type { RecurringCommitment } from "./types";
 
 const base: RecurringCommitment = {
@@ -41,5 +45,29 @@ describe("recurring calculations", () => {
         installments_completed: 4,
       }),
     ).toEqual({ completed: 4, remaining: 8, total: 12 });
+  });
+
+  it("detects only the final installment before it is paid", () => {
+    expect(
+      completesInstallmentPayment({
+        completed: 3,
+        kind: "external_installment",
+        total: 4,
+      }),
+    ).toBe(true);
+    expect(
+      completesInstallmentPayment({
+        completed: 2,
+        kind: "external_installment",
+        total: 4,
+      }),
+    ).toBe(false);
+    expect(
+      completesInstallmentPayment({
+        completed: null,
+        kind: "subscription",
+        total: null,
+      }),
+    ).toBe(false);
   });
 });
