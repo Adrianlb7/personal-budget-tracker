@@ -16,6 +16,12 @@ export type DashboardTransaction = {
   type: TransactionType;
 };
 
+export function previousCalendarMonth(date: Date) {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() - 1, 1))
+    .toISOString()
+    .slice(0, 7);
+}
+
 export function calculateNetWorthByCurrency(
   accounts: readonly DashboardAccount[],
 ) {

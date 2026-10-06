@@ -37,3 +37,12 @@ test("publishes the Orba install manifest", async ({ request }) => {
     start_url: "/app",
   });
 });
+
+test("does not export financial data without authentication", async ({
+  request,
+}) => {
+  const response = await request.get("/api/export");
+  expect(response.status()).toBe(401);
+  expect(response.headers()["cache-control"]).toContain("no-store");
+  expect(response.headers()["content-disposition"]).toBeUndefined();
+});

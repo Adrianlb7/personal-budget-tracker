@@ -22,7 +22,7 @@ Implement transfer transactions with source/destination lines and analytics excl
 
 ## Phase 6: Dashboard
 
-Build the financial cockpit with net worth, account breakdown, current month metrics, trend summary, and upcoming commitments.
+Build the financial cockpit with net worth, account breakdown, previous-month income guidance, current-month spending metrics, trend summary, and upcoming commitments.
 
 ## Phase 7: Recurring Payments
 
@@ -51,3 +51,7 @@ Add net worth over time, income vs expenses, savings rate, spending by category,
 ## Phase 14: Progressive Web App
 
 Publish Orba as an installable, secure PWA with standalone presentation, a safe offline fallback, responsive mobile navigation, and platform-ready icons.
+
+## Phase 15: Data Export and Dashboard Polish
+
+Offer a private financial JSON download, show last month's income on the dashboard, and keep long labels within mobile screens.

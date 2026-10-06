@@ -156,13 +156,13 @@ function CommitmentCard({
   const progress = installmentProgress(item);
   const Icon = item.kind === "subscription" ? CreditCard : ReceiptText;
   return (
-    <article className="rounded-[1.7rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)]">
+    <article className="min-w-0 rounded-[1.7rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)]">
       <div className="flex items-start gap-4">
-        <span className="flex size-11 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
           <Icon className="size-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">{item.name}</p>
+          <p className="font-semibold break-words">{item.name}</p>
           <p className="mt-1 text-sm text-neutral-400 capitalize">
             {item.frequency} · due {formatDate(item.next_due_on)}
           </p>
@@ -172,7 +172,7 @@ function CommitmentCard({
             </p>
           )}
         </div>
-        <p className="font-semibold">
+        <p className="max-w-[40%] shrink-0 text-right font-semibold break-words">
           {formatMoney(item.amount, item.currency)}
         </p>
       </div>

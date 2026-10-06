@@ -115,7 +115,7 @@ export default async function TransactionsPage() {
                     : "bg-red-50 text-red-700";
             return (
               <article
-                className="flex items-center gap-4 border-b p-5 last:border-b-0"
+                className="flex min-w-0 flex-wrap items-center gap-3 border-b p-4 last:border-b-0 sm:flex-nowrap sm:gap-4 sm:p-5"
                 key={transaction.id}
               >
                 <span
@@ -138,38 +138,46 @@ export default async function TransactionsPage() {
                     · {formatDate(transaction.date)}
                   </p>
                 </div>
-                <p
-                  className={`font-semibold ${income ? "text-emerald-700" : transfer ? "text-blue-700" : "text-neutral-900"}`}
-                >
-                  {transfer ? "" : income ? "+" : "−"}
-                  {formatMoney(transaction.amount, transaction.currency)}
-                  {transfer &&
-                    transaction.destination_currency &&
-                    transaction.destination_currency !== transaction.currency &&
-                    transaction.destination_amount && (
-                      <span className="ml-2 text-sm font-normal text-neutral-500">
-                        →{" "}
-                        {formatMoney(
-                          transaction.destination_amount,
-                          transaction.destination_currency,
-                        )}
-                      </span>
-                    )}
-                </p>
-                <Link
-                  aria-label={`Edit ${transaction.description}`}
-                  className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-800"
-                  href={`/app/transactions/${transaction.id}/edit`}
-                >
-                  <Pencil className="size-4" />
-                </Link>
-                <ConfirmActionButton
-                  action={deleteTransaction.bind(null, transaction.id)}
-                  className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-700"
-                  confirmation={`Permanently delete ${transaction.description}?`}
-                >
-                  <Trash2 aria-label="Delete transaction" className="size-4" />
-                </ConfirmActionButton>
+                <div className="ml-13 flex w-full min-w-0 items-center justify-between gap-2 sm:ml-0 sm:w-auto sm:justify-start sm:gap-4">
+                  <p
+                    className={`min-w-0 font-semibold break-words sm:whitespace-nowrap ${income ? "text-emerald-700" : transfer ? "text-blue-700" : "text-neutral-900"}`}
+                  >
+                    {transfer ? "" : income ? "+" : "−"}
+                    {formatMoney(transaction.amount, transaction.currency)}
+                    {transfer &&
+                      transaction.destination_currency &&
+                      transaction.destination_currency !==
+                        transaction.currency &&
+                      transaction.destination_amount && (
+                        <span className="ml-2 text-sm font-normal text-neutral-500">
+                          →{" "}
+                          {formatMoney(
+                            transaction.destination_amount,
+                            transaction.destination_currency,
+                          )}
+                        </span>
+                      )}
+                  </p>
+                  <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+                    <Link
+                      aria-label={`Edit ${transaction.description}`}
+                      className="rounded-lg p-2 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-800"
+                      href={`/app/transactions/${transaction.id}/edit`}
+                    >
+                      <Pencil className="size-4" />
+                    </Link>
+                    <ConfirmActionButton
+                      action={deleteTransaction.bind(null, transaction.id)}
+                      className="rounded-lg p-2 text-neutral-400 hover:bg-red-50 hover:text-red-700"
+                      confirmation={`Permanently delete ${transaction.description}?`}
+                    >
+                      <Trash2
+                        aria-label="Delete transaction"
+                        className="size-4"
+                      />
+                    </ConfirmActionButton>
+                  </div>
+                </div>
               </article>
             );
           })}

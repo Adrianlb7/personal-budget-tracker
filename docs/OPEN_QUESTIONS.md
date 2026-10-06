@@ -25,3 +25,4 @@
 
 - Are monthly snapshots created automatically at month close, manually, or both?
 - Should reports use transaction date, creation date, or posted date once imports are introduced?
+- Should the dashboard's previous-month income follow the user's local time zone rather than the app's existing UTC calendar-month convention?

@@ -18,6 +18,7 @@ import {
   ArrowUpRight,
   PiggyBank,
   WalletCards,
+  Download,
 } from "lucide-react";
 import type { Report, ReportRange } from "@/domain/reports/calculations";
 import { reportRanges } from "@/domain/reports/calculations";
@@ -65,21 +66,30 @@ export function ReportsDashboard({
             Understand the movement behind your money.
           </p>
         </div>
-        <div className="flex rounded-full bg-white p-1 shadow-sm ring-1 ring-black/[0.06]">
-          {reportRanges.map((option) => (
-            <button
-              className="rounded-full px-3 py-2 text-xs font-medium transition"
-              key={option}
-              onClick={() => setRange(option)}
-              style={{
-                background: range === option ? "#171717" : "transparent",
-                color: range === option ? "#fff" : "#737373",
-              }}
-              type="button"
-            >
-              {option}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            className="inline-flex items-center gap-2 rounded-full border border-black/[0.08] bg-white px-4 py-2.5 text-sm font-medium shadow-sm transition hover:bg-neutral-50"
+            download
+            href="/api/export"
+          >
+            <Download aria-hidden="true" className="size-4" /> Export data
+          </a>
+          <div className="flex rounded-full bg-white p-1 shadow-sm ring-1 ring-black/[0.06]">
+            {reportRanges.map((option) => (
+              <button
+                className="rounded-full px-3 py-2 text-xs font-medium transition"
+                key={option}
+                onClick={() => setRange(option)}
+                style={{
+                  background: range === option ? "#171717" : "transparent",
+                  color: range === option ? "#fff" : "#737373",
+                }}
+                type="button"
+              >
+                {option}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

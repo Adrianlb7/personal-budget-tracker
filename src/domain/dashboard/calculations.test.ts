@@ -5,9 +5,59 @@ import {
   calculateNetWorthByCurrency,
   calculateSpendingTrend,
   calculateWeeklySpendingTrend,
+  previousCalendarMonth,
 } from "./calculations";
 
 describe("dashboard calculations", () => {
+  it("selects the previous calendar month across a year boundary", () => {
+    expect(previousCalendarMonth(new Date("2026-10-06T12:00:00Z"))).toBe(
+      "2026-09",
+    );
+    expect(previousCalendarMonth(new Date("2027-01-01T00:00:00Z"))).toBe(
+      "2026-12",
+    );
+  });
+
+  it("keeps the previous month's income separate from current-month spending", () => {
+    const transactions = [
+      {
+        amount: "840.41",
+        currency: "USD" as const,
+        date: "2026-09-30",
+        type: "income" as const,
+      },
+      {
+        amount: "852",
+        currency: "USD" as const,
+        date: "2026-09-15",
+        type: "income" as const,
+      },
+      {
+        amount: "200",
+        currency: "USD" as const,
+        date: "2026-10-01",
+        type: "income" as const,
+      },
+      {
+        amount: "42.49",
+        currency: "USD" as const,
+        date: "2026-10-02",
+        type: "expense" as const,
+      },
+      {
+        amount: "999",
+        currency: "USD" as const,
+        date: "2026-09-18",
+        type: "transfer" as const,
+      },
+    ];
+    expect(calculateMonthlyMetrics(transactions, "USD", "2026-09").income).toBe(
+      "1692.41",
+    );
+    expect(
+      calculateMonthlyMetrics(transactions, "USD", "2026-10").expense,
+    ).toBe("42.49");
+  });
   it("adds converted BTC value to USD net worth without changing availability", () => {
     expect(
       addConvertedValueToNetWorth(

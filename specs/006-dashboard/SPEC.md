@@ -8,7 +8,7 @@ Build a concise financial cockpit for the current state of the user's finances.
 
 - Total net worth.
 - Account/asset breakdown.
-- Current month income, expenses, saved, savings rate.
+- Prior calendar month income as a spending guide; current month expenses, saved, and savings rate.
 - Spending trend.
 - Upcoming commitments summary.
 
@@ -19,4 +19,3 @@ Build a concise financial cockpit for the current state of the user's finances.
 - Transfers do not distort income/expense metrics.
 - Liquid and invested assets are visually distinct.
 - Responsive layout works on desktop and mobile.
-

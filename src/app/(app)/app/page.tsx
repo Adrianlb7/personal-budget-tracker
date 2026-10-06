@@ -32,6 +32,7 @@ import {
   calculateNetWorthByCurrency,
   calculateSpendingTrend,
   calculateWeeklySpendingTrend,
+  previousCalendarMonth,
 } from "@/domain/dashboard/calculations";
 import type { RecurringCommitment } from "@/domain/recurring/types";
 import type { TransactionDetail } from "@/domain/transactions/types";
@@ -46,7 +47,8 @@ import { dailyMoneyMessage } from "@/domain/dashboard/daily-message";
 export default async function DashboardPage() {
   const user = await requireUser();
   const supabase = await createClient();
-  const months = recentMonths(6);
+  const now = new Date();
+  const months = recentMonths(6, now);
   const weeks = recentWeeks(6);
   const [
     accountsResult,
@@ -112,6 +114,11 @@ export default async function DashboardPage() {
     preferredCurrency,
     months.at(-1)!.key,
   );
+  const lastMonthIncome = calculateMonthlyMetrics(
+    transactions,
+    preferredCurrency,
+    previousCalendarMonth(now),
+  ).income;
   const budgetTotals = calculateBudgetTotals(
     calculateBudgetProgress(budgets, transactions),
     preferredCurrency,
@@ -229,9 +236,9 @@ export default async function DashboardPage() {
         <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-4">
           <MetricCard
             icon={ArrowDownLeft}
-            label="Income this month"
+            label="Income last month"
             tone="green"
-            value={formatMoney(metrics.income, preferredCurrency)}
+            value={formatMoney(lastMonthIncome, preferredCurrency)}
           />
           <MetricCard
             icon={ArrowUpRight}
@@ -286,7 +293,7 @@ export default async function DashboardPage() {
           </p>
         </Link>
 
-        <div className="mt-4 grid gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-[1.35fr_1fr]">
+        <div className="mt-4 grid min-w-0 gap-4 sm:mt-5 sm:gap-5 xl:grid-cols-[1.35fr_1fr]">
           <article className="hidden rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:block sm:p-7">
             <SpendingChart
               currency={preferredCurrency}
@@ -295,7 +302,7 @@ export default async function DashboardPage() {
             />
           </article>
 
-          <article className="rounded-[1.75rem] border border-black/[0.06] bg-white p-5 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-7">
+          <article className="min-w-0 rounded-[1.75rem] border border-black/[0.06] bg-white p-5 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)] sm:rounded-[2rem] sm:p-7">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold">Your accounts</p>
@@ -326,11 +333,11 @@ export default async function DashboardPage() {
             >
               {accounts.map((account) => (
                 <div
-                  className="flex items-center gap-3 rounded-2xl px-2 py-3"
+                  className="flex min-w-0 items-center gap-3 rounded-2xl px-2 py-3"
                   key={account.id}
                 >
                   <span
-                    className={`flex size-10 items-center justify-center rounded-2xl ${account.type === "investment" ? "bg-violet-50 text-violet-700" : "bg-emerald-50 text-emerald-800"}`}
+                    className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${account.type === "investment" ? "bg-violet-50 text-violet-700" : "bg-emerald-50 text-emerald-800"}`}
                   >
                     {account.type === "investment" ? (
                       <ArrowUpRight aria-hidden="true" className="size-4" />
@@ -346,7 +353,7 @@ export default async function DashboardPage() {
                       {account.currency}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold">
+                  <p className="max-w-[50%] shrink-0 truncate text-right text-sm font-semibold">
                     <MoneyValue>
                       {formatMoney(
                         account.current_balance ?? account.opening_balance,
@@ -371,8 +378,8 @@ export default async function DashboardPage() {
           <Plus aria-hidden="true" className="size-7" />
         </Link>
 
-        <div className="mt-5 grid gap-5 lg:grid-cols-[1.35fr_1fr]">
-          <article className="rounded-[2rem] border border-black/[0.06] bg-white p-6 sm:p-7">
+        <div className="mt-5 grid min-w-0 gap-5 lg:grid-cols-[1.35fr_1fr]">
+          <article className="min-w-0 rounded-[2rem] border border-black/[0.06] bg-white p-6 sm:p-7">
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-semibold">Recent activity</p>
@@ -387,13 +394,13 @@ export default async function DashboardPage() {
                 View all
               </Link>
             </div>
-            <div className="mt-5 divide-y">
+            <div className="mt-5 min-w-0 divide-y">
               {recentTransactions.map((transaction) => (
                 <div
-                  className="flex items-center gap-3 py-3.5"
+                  className="flex min-w-0 items-center gap-3 py-3.5"
                   key={transaction.id}
                 >
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-neutral-100">
+                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-neutral-100">
                     {transaction.type === "transfer" ? (
                       <ArrowRight aria-hidden="true" className="size-4" />
                     ) : transaction.type === "income" ? (
@@ -416,7 +423,7 @@ export default async function DashboardPage() {
                       {shortDate(transaction.date)}
                     </p>
                   </div>
-                  <p className="text-sm font-semibold">
+                  <p className="max-w-[45%] shrink-0 truncate text-right text-sm font-semibold">
                     <MoneyValue>
                       {transaction.type === "income"
                         ? "+"
@@ -434,7 +441,7 @@ export default async function DashboardPage() {
             </div>
           </article>
 
-          <article className="overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#eef7f1] p-7">
+          <article className="min-w-0 overflow-hidden rounded-[2rem] border border-black/[0.06] bg-[#eef7f1] p-7">
             <div className="flex items-center justify-between">
               <span className="flex size-10 items-center justify-center rounded-2xl bg-white/70 text-emerald-800">
                 <CalendarClock aria-hidden="true" className="size-5" />
@@ -464,7 +471,7 @@ export default async function DashboardPage() {
                         · {shortDate(item.next_due_on)}
                       </p>
                     </div>
-                    <p className="text-sm font-semibold">
+                    <p className="max-w-[45%] shrink-0 truncate text-right text-sm font-semibold">
                       <MoneyValue>
                         {formatMoney(item.amount, item.currency)}
                       </MoneyValue>
@@ -530,8 +537,7 @@ function EmptyRow({ text }: { text: string }) {
   return <p className="py-8 text-center text-sm text-neutral-400">{text}</p>;
 }
 
-function recentMonths(count: number) {
-  const now = new Date();
+function recentMonths(count: number, now: Date) {
   return Array.from({ length: count }, (_, index) => {
     const date = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - count + index + 1, 1),
