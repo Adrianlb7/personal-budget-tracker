@@ -8,3 +8,4 @@
 - [x] Add tests for commitment summaries.
 - [x] Celebrate a commitment when its final installment is paid.
 - [x] Label the active summary as the next month's bill.
+- [x] Add a payment timeline for subscriptions and installments.

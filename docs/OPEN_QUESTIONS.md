@@ -20,9 +20,18 @@
 - Resolved in Phase 007: commitments create transactions only when the user presses Pay. Subscriptions create expenses; installment repayments create internal transfers to savings.
 - Can a savings reimbursement plan be paused or edited after installments have started?
 - Resolved in Phase 007: the original purchase is the expense; installment repayments replenish savings through internal transfers and never duplicate spending.
+- Should editing or deleting a transaction linked to an installment also reconcile the plan's completed count? The payment timeline currently flags a mismatch when recorded transactions exceed that count and does not invent dates for unlinked completed installments.
 
 ## Reporting
 
 - Are monthly snapshots created automatically at month close, manually, or both?
 - Should reports use transaction date, creation date, or posted date once imports are introduced?
 - Should the dashboard's previous-month income follow the user's local time zone rather than the app's existing UTC calendar-month convention?
+
+## Appearance
+
+- Should appearance preferences eventually sync between devices? Phase 016 keeps the choice local to each browser.
+
+## Authentication
+
+- Verify one complete password reset from a newly issued email after the recovery-session handoff change. Supabase's Auth log showed that the previous email link created an implicit session, but Orba still showed an expired-link message. The built-in Supabase mailer does not allow editing the reset email template without custom SMTP.

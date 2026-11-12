@@ -81,8 +81,9 @@ export function ReportsDashboard({
                 key={option}
                 onClick={() => setRange(option)}
                 style={{
-                  background: range === option ? "#171717" : "transparent",
-                  color: range === option ? "#fff" : "#737373",
+                  background:
+                    range === option ? "var(--foreground)" : "transparent",
+                  color: range === option ? "var(--surface)" : "var(--muted)",
                 }}
                 type="button"
               >

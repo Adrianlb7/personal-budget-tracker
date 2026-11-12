@@ -221,7 +221,7 @@ function BudgetCard({
         aria-valuenow={width}
         role="progressbar"
         style={{
-          background: "#f5f5f5",
+          background: "var(--surface-soft)",
           borderRadius: "9999px",
           boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.08)",
           height: "0.875rem",

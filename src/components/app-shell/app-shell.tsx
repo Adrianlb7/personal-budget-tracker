@@ -2,70 +2,43 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { Landmark } from "lucide-react";
 import { SignOutButton } from "@/components/auth/sign-out-button";
+import { AppearanceSwitcher } from "@/components/appearance/appearance-switcher";
+import { DesktopNavigation } from "@/components/app-shell/desktop-navigation";
 import { MobileNavigation } from "@/components/app-shell/mobile-navigation";
-
-const navigation = [
-  { href: "/app", label: "Dashboard" },
-  { href: "/app/accounts", label: "Accounts" },
-  { href: "/app/transactions", label: "Transactions" },
-  { href: "/app/budget", label: "Budget" },
-  { href: "/app/recurring", label: "Recurring" },
-  { href: "/app/reports", label: "Reports" },
-];
 
 export function AppShell({
   children,
   userEmail,
 }: Readonly<{ children: ReactNode; userEmail: string | null }>) {
   return (
-    <div className="relative isolate min-h-screen md:grid md:grid-cols-[240px_1fr]">
-      <aside
-        className="app-sidebar relative z-20 hidden border-b border-black/[0.06] p-6 md:sticky md:top-0 md:block md:h-screen md:border-r md:border-b-0"
-        style={{
-          backdropFilter: "blur(46px) saturate(0.9)",
-          background: "rgba(255, 255, 255, 0.96)",
-          color: "#050605",
-          isolation: "isolate",
-          opacity: 1,
-          WebkitBackdropFilter: "blur(46px) saturate(0.9)",
-          zIndex: 50,
-        }}
-      >
+    <div className="relative isolate min-h-screen md:grid md:grid-cols-[248px_1fr]">
+      <aside className="app-sidebar relative z-20 hidden border-r p-5 md:sticky md:top-0 md:flex md:h-screen md:flex-col">
         <Link
-          className="flex items-center gap-3 font-semibold"
+          className="flex items-center gap-3 rounded-2xl px-2 py-1.5 font-semibold tracking-[-0.02em]"
           href="/"
-          style={{ color: "#050605" }}
         >
-          <span className="flex size-9 items-center justify-center rounded-xl bg-emerald-900 text-white">
+          <span className="flex size-10 items-center justify-center rounded-[0.9rem] bg-emerald-900 text-white shadow-sm">
             <Landmark aria-hidden="true" className="size-5" />
           </span>
-          Orba
+          <span className="text-lg">Orba</span>
         </Link>
-        <nav aria-label="Primary" className="mt-10 hidden space-y-1 md:block">
-          {navigation.map((item) => (
-            <Link
-              className="block rounded-xl px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900"
-              href={item.href}
-              key={item.href}
-              style={{ color: "#050605" }}
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <div className="mt-10 hidden border-t pt-5 md:block">
+        <DesktopNavigation />
+        <div className="mt-auto space-y-4 border-t pt-5">
+          <div>
+            <p className="mb-2 px-2 text-[0.68rem] font-semibold tracking-[0.12em] text-neutral-500 uppercase">
+              Appearance
+            </p>
+            <AppearanceSwitcher />
+          </div>
           {userEmail && (
-            <p
-              className="sidebar-email mb-2 truncate px-3 text-xs text-neutral-500"
-              style={{ color: "#050605" }}
-            >
+            <p className="truncate px-2 text-xs text-neutral-500">
               {userEmail}
             </p>
           )}
           <SignOutButton />
         </div>
       </aside>
-      <main className="relative z-10 min-w-0 px-4 pt-6 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:p-8 lg:p-10">
+      <main className="relative z-10 min-w-0 px-4 pt-6 pb-[calc(7.5rem+env(safe-area-inset-bottom))] md:p-9 lg:p-11">
         {children}
       </main>
       <MobileNavigation />

@@ -25,3 +25,8 @@ Track recurring financial commitments while preserving their different accountin
   does not have enough available funds.
 - Completing the final installment shows a congratulatory confirmation.
 - The active commitment summary is labelled as the next month's bill.
+- Every commitment has a persistent payment detail view with recorded
+  transactions and projected due dates. Historical amounts come from the
+  original transactions; projections use the current plan amount.
+- Installments completed before they were tracked have no invented payment
+  dates or amounts in the detail view.

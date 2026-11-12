@@ -119,6 +119,7 @@ export async function updateRecurringCommitment(
   if (error) return { message: "The recurring payment could not be updated." };
   revalidatePath("/app");
   revalidatePath("/app/recurring");
+  revalidatePath(`/app/recurring/${id}`);
   redirect("/app/recurring");
 }
 
@@ -164,6 +165,7 @@ export async function payRecurringCommitment(
   revalidatePath("/app");
   revalidatePath("/app/accounts");
   revalidatePath("/app/recurring");
+  revalidatePath(`/app/recurring/${id}`);
   revalidatePath("/app/transactions");
   redirect(
     completesCommitment
@@ -183,4 +185,5 @@ export async function setRecurringStatus(id: string, status: RecurringStatus) {
   if (error) throw new Error("The recurring payment could not be updated.");
   revalidatePath("/app");
   revalidatePath("/app/recurring");
+  revalidatePath(`/app/recurring/${id}`);
 }

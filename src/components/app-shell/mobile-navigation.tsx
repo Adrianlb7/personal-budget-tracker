@@ -16,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import { signOut } from "@/lib/auth/actions";
+import { AppearanceSwitcher } from "@/components/appearance/appearance-switcher";
 
 const primaryItems = [
   { href: "/app", icon: Home, label: "Home", match: "exact" },
@@ -48,7 +49,7 @@ export function MobileNavigation() {
       {open && (
         <div
           aria-hidden="true"
-          className="fixed inset-0 z-40 bg-black/15 backdrop-blur-[2px] md:hidden"
+          className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[3px] md:hidden"
           onClick={() => setOpen(false)}
         />
       )}
@@ -57,7 +58,7 @@ export function MobileNavigation() {
         aria-hidden={!open}
         aria-label="More navigation"
         aria-modal="true"
-        className={`fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] left-4 z-50 rounded-[1.75rem] border border-black/[0.07] bg-white/95 p-4 shadow-[0_20px_55px_-30px_rgba(0,0,0,0.4)] backdrop-blur-md transition duration-300 will-change-transform md:hidden ${
+        className={`mobile-more-sheet fixed right-4 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] left-4 z-50 rounded-[1.75rem] border p-4 shadow-[0_20px_55px_-30px_rgba(0,0,0,0.4)] transition duration-300 will-change-transform md:hidden ${
           open
             ? "translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0"
@@ -93,6 +94,12 @@ export function MobileNavigation() {
             </Link>
           ))}
         </nav>
+        <div className="mt-4 border-t pt-4">
+          <p className="mb-2 px-1 text-xs font-medium text-neutral-500">
+            Appearance
+          </p>
+          <AppearanceSwitcher />
+        </div>
         <form action={signOut} className="mt-3 border-t pt-3">
           <button
             className="flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium text-neutral-600"
@@ -106,7 +113,7 @@ export function MobileNavigation() {
 
       <nav
         aria-label="Mobile navigation"
-        className="fixed right-0 bottom-0 left-0 z-50 border-t border-black/[0.06] bg-white/95 px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_32px_-26px_rgba(0,0,0,0.32)] backdrop-blur-md md:hidden"
+        className="mobile-tab-bar fixed right-0 bottom-0 left-0 z-50 border-t px-4 pt-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] shadow-[0_-10px_32px_-26px_rgba(0,0,0,0.32)] md:hidden"
       >
         <div className="mx-auto grid max-w-lg grid-cols-4">
           {primaryItems.map(({ href, icon: Icon, label, match }) => {
@@ -115,15 +122,14 @@ export function MobileNavigation() {
             return (
               <Link
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-1 text-[0.68rem] font-medium transition ${
-                  active ? "text-emerald-900" : "text-neutral-400"
-                }`}
+                className="mobile-tab-link flex min-h-14 flex-col items-center justify-center gap-1 text-[0.68rem] font-medium transition"
                 href={href}
                 key={href}
               >
                 <Icon
                   aria-hidden="true"
-                  className={`size-5 ${active ? "fill-emerald-900/10" : ""}`}
+                  className="size-5"
+                  strokeWidth={active ? 2.2 : 1.8}
                 />
                 {label}
               </Link>
@@ -131,9 +137,8 @@ export function MobileNavigation() {
           })}
           <button
             aria-expanded={open}
-            className={`flex min-h-14 flex-col items-center justify-center gap-1 text-[0.68rem] font-medium transition ${
-              open ? "text-emerald-900" : "text-neutral-400"
-            }`}
+            className="mobile-tab-link flex min-h-14 flex-col items-center justify-center gap-1 text-[0.68rem] font-medium transition"
+            data-active={open}
             onClick={() => setOpen((current) => !current)}
             type="button"
           >

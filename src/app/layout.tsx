@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#064e3b",
+  themeColor: "#f6f8f7",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -34,7 +34,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var choice=localStorage.getItem('orba-appearance');var dark=choice==='dark'||(choice!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.dataset.theme=dark?'dark':'light';var meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=dark?'#11191b':'#f6f8f7'}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body>
         {children}
         <ServiceWorkerRegistration />

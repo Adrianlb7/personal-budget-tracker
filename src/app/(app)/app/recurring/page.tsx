@@ -4,6 +4,7 @@ import {
   CirclePause,
   CirclePlay,
   CreditCard,
+  ListChecks,
   Plus,
   ReceiptText,
   Pencil,
@@ -192,10 +193,17 @@ function CommitmentCard({
           </div>
         </div>
       )}
-      <div className="mt-5 flex gap-2 border-t pt-4">
+      <div className="mt-5 flex flex-wrap gap-2 border-t pt-4">
         {item.status === "active" && (
           <PayButton accounts={paymentAccounts} id={item.id} kind={item.kind} />
         )}
+        <Link
+          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100"
+          href={`/app/recurring/${item.id}`}
+        >
+          <ListChecks className="size-4" aria-hidden="true" />
+          View payments
+        </Link>
         <Link
           className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-sm text-neutral-500 hover:bg-neutral-100"
           href={`/app/recurring/${item.id}/edit`}

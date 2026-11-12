@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { signIn } from "@/lib/auth/actions";
 
 export function SignInForm() {
@@ -29,9 +30,17 @@ export function SignInForm() {
       </div>
 
       <div>
-        <label className="text-sm font-medium" htmlFor="password">
-          Password
-        </label>
+        <div className="flex items-center justify-between gap-3">
+          <label className="text-sm font-medium" htmlFor="password">
+            Password
+          </label>
+          <Link
+            className="text-sm font-medium text-emerald-800 hover:underline"
+            href="/forgot-password"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <input
           aria-describedby="password-error"
           autoComplete="current-password"

@@ -1,0 +1,447 @@
+.page {
+  width: min(100%, 700px);
+  min-width: 0;
+  margin-inline: auto;
+  padding-bottom: 2rem;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.backLink,
+.editLink,
+.footerLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.backLink {
+  color: var(--muted);
+}
+
+.backLink:hover,
+.footerLink:hover {
+  color: var(--foreground);
+}
+
+.editLink {
+  flex: none;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+}
+
+.editLink:hover {
+  background: var(--surface-soft);
+}
+
+.receipt {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: var(--shadow-soft);
+}
+
+.receiptHeader,
+.summary,
+.progressBlock,
+.schedule,
+.footer {
+  margin-inline: 1.75rem;
+}
+
+.receiptHeader {
+  padding-top: 1.7rem;
+}
+
+.metaRow,
+.scheduleHeading,
+.progressLabels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.kind,
+.status,
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.kind {
+  padding: 0.45rem 0.7rem;
+  background: var(--surface-soft);
+  color: var(--accent);
+}
+
+.status {
+  padding: 0.38rem 0.65rem;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-transform: capitalize;
+}
+
+.title {
+  margin-top: 1.25rem;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.16;
+  overflow-wrap: anywhere;
+}
+
+.cadence {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.45rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--border);
+}
+
+.summaryItem {
+  min-width: 0;
+}
+
+.summaryLabel {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.summaryValue {
+  margin-top: 0.25rem;
+  font-size: clamp(1.15rem, 2.5vw, 1.45rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+.progressBlock {
+  margin-top: 1.3rem;
+}
+
+.progressLabels {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.progressLabels span:last-child {
+  flex: none;
+}
+
+.progressTrack {
+  height: 0.35rem;
+  margin-top: 0.55rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-soft);
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #007c60, #76d8b2);
+}
+
+.perforation {
+  position: relative;
+  height: 1px;
+  margin: 1.65rem 0 0;
+  border-top: 1px dashed var(--border);
+}
+
+.perforation::before,
+.perforation::after {
+  position: absolute;
+  top: -0.55rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--background);
+  content: "";
+}
+
+.perforation::before {
+  left: -0.65rem;
+}
+
+.perforation::after {
+  right: -0.65rem;
+}
+
+.schedule {
+  padding-top: 1.4rem;
+}
+
+.scheduleHeading > div {
+  min-width: 0;
+}
+
+.eyebrow {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.scheduleTitle {
+  margin-top: 0.2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.count {
+  flex: none;
+  color: var(--muted);
+  font-weight: 550;
+}
+
+.scheduleNote {
+  max-width: 34rem;
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.warning {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: var(--surface-soft);
+  color: var(--foreground);
+  font-size: 0.8rem;
+}
+
+.empty {
+  margin-top: 1.25rem;
+  padding: 1.5rem;
+  border-radius: 0.85rem;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.timeline {
+  margin-top: 1.05rem;
+  padding: 0;
+  list-style: none;
+}
+
+.timelineRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.8rem;
+  min-width: 0;
+  padding: 0.65rem 0;
+}
+
+.timelineRow:not(:last-child)::after {
+  position: absolute;
+  z-index: 0;
+  top: 2.4rem;
+  bottom: -0.65rem;
+  left: 0.85rem;
+  width: 1px;
+  background: var(--border);
+  content: "";
+}
+
+.marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+}
+
+.complete {
+  border-color: #087e62;
+  background: #087e62;
+  color: #fff;
+}
+
+.markerDot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.timelineText {
+  min-width: 0;
+  padding-top: 0.15rem;
+  overflow-wrap: anywhere;
+}
+
+.rowTitle,
+.amount {
+  font-size: 0.86rem;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.rowDetail {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
+.amount {
+  padding-top: 0.15rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.estimate {
+  color: var(--muted);
+}
+
+.subscriptionNote {
+  margin-top: 0.75rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem 1.25rem;
+  margin-top: 1.25rem;
+  padding-block: 1rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.footerStatus {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.footerStatus svg {
+  flex: none;
+  color: var(--accent);
+}
+
+.footerLink {
+  flex: none;
+  color: var(--accent);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .page {
+    width: 100%;
+  }
+
+  .receipt {
+    border-radius: 1.25rem;
+  }
+
+  .receiptHeader,
+  .summary,
+  .progressBlock,
+  .schedule,
+  .footer {
+    margin-inline: 1.1rem;
+  }
+
+  .receiptHeader {
+    padding-top: 1.15rem;
+  }
+
+  .title {
+    margin-top: 1rem;
+  }
+
+  .summary {
+    gap: 0.85rem;
+  }
+
+  .scheduleHeading {
+    align-items: flex-start;
+  }
+
+  .count {
+    padding-top: 0.25rem;
+  }
+
+  .footer {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 350px) {
+  .timelineRow {
+    grid-template-columns: 1.75rem minmax(0, 1fr);
+  }
+
+  .amount {
+    grid-column: 2;
+    padding-top: 0;
+    text-align: left;
+  }
+
+  .count {
+    gap: 0.25rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (max-width: 340px) {
+  .summary {
+    grid-template-columns: 1fr;
+    gap: 0.7rem;
+  }
+}

@@ -100,8 +100,8 @@ export function CategoryCombobox({
           id={`${id}-options`}
           role="listbox"
           style={{
-            background: "white",
-            border: "1px solid rgba(0, 0, 0, 0.1)",
+            background: "var(--surface)",
+            border: "1px solid var(--border)",
             borderRadius: "1rem",
             boxShadow: "0 20px 55px -24px rgba(0, 0, 0, 0.4)",
             left: 0,
@@ -111,7 +111,7 @@ export function CategoryCombobox({
             overscrollBehavior: "contain",
             padding: "0.375rem",
             position: "absolute",
-            scrollbarColor: "#d4d4d4 transparent",
+            scrollbarColor: "var(--border) transparent",
             scrollbarWidth: "thin",
             top: "100%",
             width: "100%",

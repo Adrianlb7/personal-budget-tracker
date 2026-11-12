@@ -55,11 +55,12 @@ export function ConfirmActionButton({
             <div
               onMouseDown={(event) => event.stopPropagation()}
               style={{
-                background: "white",
-                border: "1px solid #dde3dc",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
                 borderRadius: "16px",
                 boxShadow: "0 24px 70px rgba(0, 0, 0, 0.22)",
                 boxSizing: "border-box",
+                color: "var(--foreground)",
                 padding: "20px",
                 width: "min(320px, calc(100vw - 32px))",
               }}
@@ -72,7 +73,7 @@ export function ConfirmActionButton({
               </h2>
               <p
                 style={{
-                  color: "#647066",
+                  color: "var(--muted)",
                   fontSize: "14px",
                   lineHeight: 1.45,
                   margin: "8px 0 0",
@@ -95,7 +96,7 @@ export function ConfirmActionButton({
                     background: "transparent",
                     border: 0,
                     borderRadius: "8px",
-                    color: "#525252",
+                    color: "var(--muted)",
                     cursor: "pointer",
                     fontSize: "14px",
                     padding: "8px 12px",

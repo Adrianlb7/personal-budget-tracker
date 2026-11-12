@@ -3,7 +3,7 @@ import { Landmark, RefreshCw } from "lucide-react";
 
 export default function OfflinePage() {
   return (
-    <main className="grid min-h-[100svh] place-items-center bg-[#f4f5f2] px-6 py-16">
+    <main className="grid min-h-[100svh] place-items-center px-6 py-16">
       <section className="w-full max-w-sm text-center">
         <div className="mx-auto flex size-14 items-center justify-center rounded-2xl bg-emerald-950 text-white shadow-lg shadow-emerald-950/15">
           <Landmark aria-hidden="true" className="size-7" />

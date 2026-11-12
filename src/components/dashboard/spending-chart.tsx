@@ -38,7 +38,7 @@ export function SpendingChart({
           role="group"
           style={{
             alignItems: "center",
-            background: "#f5f5f5",
+            background: "var(--surface-soft)",
             borderRadius: "9999px",
             display: "inline-flex",
             gap: "4px",
@@ -49,7 +49,7 @@ export function SpendingChart({
           <span
             aria-hidden="true"
             style={{
-              background: "#ffffff",
+              background: "var(--surface)",
               borderRadius: "9999px",
               bottom: "4px",
               boxShadow: "0 1px 3px rgb(0 0 0 / 0.1)",
@@ -73,7 +73,7 @@ export function SpendingChart({
               onClick={() => setPeriod(option)}
               style={{
                 borderRadius: "9999px",
-                color: period === option ? "#171717" : "#a3a3a3",
+                color: period === option ? "var(--foreground)" : "var(--muted)",
                 fontSize: "0.75rem",
                 fontWeight: 500,
                 lineHeight: "1rem",

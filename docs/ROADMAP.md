@@ -55,3 +55,11 @@ Publish Orba as an installable, secure PWA with standalone presentation, a safe 
 ## Phase 15: Data Export and Dashboard Polish
 
 Offer a private financial JSON download, show last month's income on the dashboard, and keep long labels within mobile screens.
+
+## Phase 16: Visual System and Appearance
+
+Refine Orba's shared visual language and navigation, and offer locally persisted Light, Dark, and Auto appearance modes across desktop, mobile, and public screens.
+
+## Phase 17: Password Recovery
+
+Allow an existing user to request a Supabase recovery email and set a new password from a verified link.
