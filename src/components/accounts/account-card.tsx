@@ -1,33 +1,14 @@
 import Link from "next/link";
-import {
-  CreditCard,
-  Landmark,
-  PiggyBank,
-  RotateCcw,
-  Trash2,
-  WalletCards,
-} from "lucide-react";
+import { RotateCcw, Trash2 } from "lucide-react";
 import { ConfirmActionButton } from "@/components/shared/confirm-action-button";
 import { deleteAccount, restoreAccount } from "@/domain/accounts/actions";
 import { calculateAccountBalance } from "@/domain/accounts/balance";
-import {
-  accountTypeLabels,
-  type Account,
-  type AccountType,
-} from "@/domain/accounts/types";
+import { accountTypeLabels, type Account } from "@/domain/accounts/types";
 import { formatMoney } from "@/lib/money/format";
 import { ArchiveAccountButton } from "./archive-account-button";
-
-const icons = {
-  cash: WalletCards,
-  checking: Landmark,
-  savings: PiggyBank,
-  investment: Landmark,
-  credit_debt: CreditCard,
-} satisfies Record<AccountType, typeof Landmark>;
+import { AccountIcon } from "./account-icon";
 
 export function AccountCard({ account }: { account: Account }) {
-  const Icon = icons[account.type];
   const balance =
     account.current_balance ??
     calculateAccountBalance(account.opening_balance, []);
@@ -35,12 +16,10 @@ export function AccountCard({ account }: { account: Account }) {
   return (
     <article className="rounded-2xl border bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="flex size-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-800">
-            <Icon aria-hidden="true" className="size-5" />
-          </span>
-          <div>
-            <h2 className="font-semibold">{account.name}</h2>
+        <div className="flex min-w-0 items-center gap-3">
+          <AccountIcon account={account} />
+          <div className="min-w-0">
+            <h2 className="font-semibold break-words">{account.name}</h2>
             <p className="text-sm text-neutral-500">
               {accountTypeLabels[account.type]} · {account.currency}
             </p>

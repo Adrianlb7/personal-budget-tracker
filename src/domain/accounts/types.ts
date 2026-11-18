@@ -25,6 +25,8 @@ export type Account = {
   current_balance?: string;
   currency: Currency;
   id: string;
+  icon_emoji: string | null;
+  icon_image_path: string | null;
   name: string;
   opening_balance: string;
   type: AccountType;

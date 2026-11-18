@@ -47,6 +47,16 @@ test("does not export financial data without authentication", async ({
   expect(response.headers()["content-disposition"]).toBeUndefined();
 });
 
+test("keeps account images private without authentication", async ({
+  request,
+}) => {
+  const response = await request.get(
+    "/api/account-icons/b8e69e52-77d1-4e72-8403-17e8f7d7a2f9",
+  );
+  expect(response.status()).toBe(401);
+  expect(response.headers()["cache-control"]).toContain("no-store");
+});
+
 test("appearance choice persists and auto follows the device", async ({
   page,
 }) => {

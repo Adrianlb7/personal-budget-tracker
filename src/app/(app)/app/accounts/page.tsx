@@ -17,7 +17,7 @@ export default async function AccountsPage({
   let query = supabase
     .from("account_details")
     .select(
-      "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
+      "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at,icon_emoji,icon_image_path",
     )
     .eq("user_id", user.id)
     .order("created_at", { ascending: true });

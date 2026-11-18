@@ -5,13 +5,13 @@ import {
   ArrowUpRight,
   CalendarClock,
   ChevronRight,
-  Landmark,
   Plus,
   PiggyBank,
   Sparkles,
   Bitcoin,
 } from "lucide-react";
 import { BalanceOverviewCard } from "@/components/dashboard/balance-overview-card";
+import { AccountIcon } from "@/components/accounts/account-icon";
 import { LiquidDashboardBackground } from "@/components/dashboard/liquid-dashboard-background";
 import { DashboardHoverRegion } from "@/components/dashboard/dashboard-hover-region";
 import {
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
     supabase
       .from("account_details")
       .select(
-        "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
+        "id,user_id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at,icon_emoji,icon_image_path",
       )
       .eq("user_id", user.id)
       .is("archived_at", null)
@@ -336,15 +336,7 @@ export default async function DashboardPage() {
                   className="flex min-w-0 items-center gap-3 rounded-2xl px-2 py-3"
                   key={account.id}
                 >
-                  <span
-                    className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${account.type === "investment" ? "bg-violet-50 text-violet-700" : "bg-emerald-50 text-emerald-800"}`}
-                  >
-                    {account.type === "investment" ? (
-                      <ArrowUpRight aria-hidden="true" className="size-4" />
-                    ) : (
-                      <Landmark aria-hidden="true" className="size-4" />
-                    )}
-                  </span>
+                  <AccountIcon account={account} variant="dashboard" />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
                       {account.name}

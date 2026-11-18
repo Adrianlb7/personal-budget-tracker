@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useState,
+  type FormEvent,
+} from "react";
 import {
   accountTypeLabels,
   accountTypes,
@@ -9,6 +14,7 @@ import {
   type Account,
 } from "@/domain/accounts/types";
 import type { AccountFormState } from "@/domain/accounts/validation";
+import { AccountIconPicker } from "./account-icon-picker";
 
 type AccountAction = (
   state: AccountFormState,
@@ -23,11 +29,21 @@ export function AccountForm({
   action: AccountAction;
 }) {
   const [state, formAction, pending] = useActionState(action, {});
+  const [iconImage, setIconImage] = useState<File | null>(null);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!iconImage) return;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.set("iconImage", iconImage);
+    startTransition(() => formAction(formData));
+  }
 
   return (
     <form
       action={formAction}
       className="mt-8 max-w-2xl space-y-6 rounded-3xl border bg-white p-6 shadow-sm sm:p-8"
+      onSubmit={handleSubmit}
     >
       <div>
         <label className="text-sm font-medium" htmlFor="name">
@@ -44,6 +60,22 @@ export function AccountForm({
         />
         {state.errors?.name && (
           <FieldError id="name-error" message={state.errors.name[0]} />
+        )}
+      </div>
+
+      <div>
+        <AccountIconPicker
+          initialEmoji={account?.icon_emoji}
+          initialImageUrl={
+            account?.icon_image_path ? `/api/account-icons/${account.id}` : null
+          }
+          onImageFileChange={setIconImage}
+        />
+        {state.errors?.iconImage && (
+          <FieldError message={state.errors.iconImage[0]} />
+        )}
+        {state.errors?.iconEmoji && (
+          <FieldError message={state.errors.iconEmoji[0]} />
         )}
       </div>
 

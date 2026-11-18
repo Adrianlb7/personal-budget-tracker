@@ -37,6 +37,8 @@ export const accountSchema = z.object({
 export type AccountFormState = {
   errors?: {
     currency?: string[];
+    iconEmoji?: string[];
+    iconImage?: string[];
     name?: string[];
     openingBalance?: string[];
     type?: string[];

@@ -1,0 +1,346 @@
+.account-icon-field {
+  min-width: 0;
+}
+
+.account-icon-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.account-icon-choice {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--surface);
+  color: var(--foreground);
+  text-align: left;
+  transition:
+    border-color 180ms ease,
+    background-color 180ms ease;
+}
+
+.account-icon-choice:hover {
+  border-color: var(--accent);
+  background: var(--surface-soft);
+}
+
+.account-icon-choice > svg:last-child {
+  flex: none;
+  color: var(--muted);
+}
+
+.account-icon-preview {
+  display: flex;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  background: var(--surface-soft);
+  color: var(--accent);
+  font-family:
+    "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.account-icon-preview-image {
+  background: transparent;
+}
+
+.account-icon-preview-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.account-icon-choice-copy {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.account-icon-choice-copy strong {
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.account-icon-choice-copy small {
+  color: var(--muted);
+  font-size: 0.77rem;
+}
+
+.account-icon-overlay {
+  position: fixed;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  inset: 0;
+  background: rgb(8 20 17 / 0.46);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.account-icon-dialog {
+  width: min(100%, 26rem);
+  max-height: min(90dvh, 690px);
+  overflow: auto;
+  padding: 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: var(--card);
+  box-shadow: 0 22px 80px rgb(0 0 0 / 0.2);
+  color: var(--foreground);
+}
+
+.account-icon-dialog-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.account-icon-dialog-header h2 {
+  font-size: 1.1rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.account-icon-dialog-header p {
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.account-icon-close,
+.account-crop-reset {
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  place-items: center;
+  border-radius: 999px;
+  color: var(--muted);
+}
+
+.account-icon-close:hover,
+.account-crop-reset:hover {
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.account-icon-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.2rem;
+  margin: 1.25rem 0 1rem;
+  padding: 0.25rem;
+  border-radius: 0.9rem;
+  background: var(--surface-soft);
+}
+
+.account-icon-tab {
+  display: flex;
+  min-height: 2.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border-radius: 0.7rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.account-icon-tab[aria-selected="true"] {
+  background: var(--surface);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.09);
+  color: var(--foreground);
+}
+
+.account-emoji-panel {
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 0.9rem;
+}
+
+.account-emoji-loading {
+  display: grid;
+  height: 360px;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.account-image-panel {
+  display: flex;
+  min-height: 20rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.85rem;
+}
+
+.account-image-upload {
+  display: flex;
+  width: 100%;
+  min-height: 16rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px dashed var(--border);
+  border-radius: 1.1rem;
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.account-image-upload svg {
+  margin-bottom: 0.25rem;
+  color: var(--accent);
+}
+
+.account-image-upload strong {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.account-image-upload span {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.account-crop-viewport {
+  position: relative;
+  width: 256px;
+  height: 256px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background-color: #f2f4f3;
+  background-image:
+    linear-gradient(45deg, #dfe4e1 25%, transparent 25%),
+    linear-gradient(-45deg, #dfe4e1 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #dfe4e1 75%),
+    linear-gradient(-45deg, transparent 75%, #dfe4e1 75%);
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0;
+  background-size: 16px 16px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.account-crop-viewport:active {
+  cursor: grabbing;
+}
+
+.account-crop-image {
+  position: absolute;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+}
+
+.account-crop-controls {
+  display: flex;
+  width: min(100%, 256px);
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.account-crop-controls label {
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.account-crop-controls input[type="range"] {
+  min-width: 0;
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.account-crop-actions {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.account-icon-primary,
+.account-icon-secondary {
+  padding: 0.58rem 0.85rem;
+  border-radius: 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.account-icon-primary {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.account-icon-primary:disabled {
+  opacity: 0.6;
+}
+
+.account-icon-secondary {
+  color: var(--muted);
+}
+
+.account-icon-secondary:hover {
+  background: var(--surface-soft);
+  color: var(--foreground);
+}
+
+.account-icon-error {
+  margin-top: 0.7rem;
+  color: #b42318;
+  font-size: 0.8rem;
+}
+
+.account-icon-remove {
+  display: block;
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.55rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.account-icon-remove:hover {
+  color: var(--foreground);
+}
+
+@media (max-width: 480px) {
+  .account-icon-overlay {
+    align-items: end;
+    padding: 0;
+  }
+
+  .account-icon-dialog {
+    width: 100%;
+    max-height: min(88dvh, 690px);
+    padding: 1.15rem 1rem calc(1.15rem + env(safe-area-inset-bottom));
+    border-radius: 1.4rem 1.4rem 0 0;
+  }
+}

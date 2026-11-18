@@ -31,6 +31,7 @@
 ## Appearance
 
 - Should appearance preferences eventually sync between devices? Phase 016 keeps the choice local to each browser.
+- Should account emojis use identical Apple artwork on non-Apple devices? Phase 018 uses the device's native emoji font, which displays Apple artwork on iPhone and Mac without downloading third-party emoji images.
 
 ## Authentication
 

@@ -67,6 +67,10 @@ Find these values in your Supabase project's API settings. Never expose a servic
 
 The profile migration creates a private profile automatically for every new Auth user. Its RLS policies permit authenticated users to read and update only their own profile.
 
+### Account icon migration
+
+Before using emoji or image icons on an existing project, apply [`supabase/migrations/20261118000000_add_account_icons.sql`](supabase/migrations/20261118000000_add_account_icons.sql) in the Supabase SQL editor or through your configured migration workflow. It adds the icon fields and a private PNG Storage bucket. Apply it before deploying the matching app code, because the account and dashboard queries read the new fields.
+
 ### Verification
 
 ```bash
