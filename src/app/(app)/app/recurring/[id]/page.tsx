@@ -6,10 +6,9 @@ import {
   CalendarDays,
   Check,
   Clock3,
-  CreditCard,
   Pencil,
-  ReceiptText,
 } from "lucide-react";
+import { RecurringIcon } from "@/components/recurring/recurring-icon";
 import type { TransactionDetail } from "@/domain/transactions/types";
 import type { RecurringCommitment } from "@/domain/recurring/types";
 import { recurringPaymentSchedule } from "@/domain/recurring/payment-schedule";
@@ -30,7 +29,7 @@ export default async function RecurringPaymentsPage({
     supabase
       .from("recurring_commitments")
       .select(
-        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at,icon_emoji,icon_image_path",
       )
       .eq("id", id)
       .eq("user_id", user.id)
@@ -55,7 +54,6 @@ export default async function RecurringPaymentsPage({
   const payments = (paymentsResult.data ?? []) as TransactionDetail[];
   const schedule = recurringPaymentSchedule(commitment, payments);
   const installment = commitment.kind === "external_installment";
-  const Icon = installment ? ReceiptText : CreditCard;
   const hasPaymentCountMismatch =
     installment && payments.length > schedule.completed;
 
@@ -76,7 +74,7 @@ export default async function RecurringPaymentsPage({
         <header className={styles.receiptHeader}>
           <div className={styles.metaRow}>
             <span className={styles.kind}>
-              <Icon size={15} aria-hidden="true" />
+              <RecurringIcon item={commitment} variant="badge" />
               {installment ? "Installment" : "Subscription"}
             </span>
             <span className={styles.status}>{commitment.status}</span>

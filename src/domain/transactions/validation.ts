@@ -50,6 +50,8 @@ export type TransactionFormState = {
       | "category"
       | "date"
       | "description"
+      | "iconEmoji"
+      | "iconImage"
       | "notes"
       | "type",
       string[]

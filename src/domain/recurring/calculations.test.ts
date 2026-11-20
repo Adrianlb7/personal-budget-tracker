@@ -6,6 +6,8 @@ import {
 import type { RecurringCommitment } from "./types";
 
 const base: RecurringCommitment = {
+  icon_emoji: null,
+  icon_image_path: null,
   account_id: "a",
   amount: "12",
   created_at: "",

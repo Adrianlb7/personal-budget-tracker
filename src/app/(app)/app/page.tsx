@@ -19,6 +19,8 @@ import {
   MoneyValue,
 } from "@/components/dashboard/dashboard-privacy";
 import { SpendingChart } from "@/components/dashboard/spending-chart";
+import { TransactionIcon } from "@/components/transactions/transaction-icon";
+import { RecurringIcon } from "@/components/recurring/recurring-icon";
 import type { Account, Currency } from "@/domain/accounts/types";
 import {
   calculateBudgetProgress,
@@ -68,7 +70,7 @@ export default async function DashboardPage() {
     supabase
       .from("transaction_details")
       .select(
-        "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
+        "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency,icon_emoji,icon_image_path",
       )
       .eq("user_id", user.id)
       .gte("date", `${months[0].key}-01`)
@@ -76,7 +78,7 @@ export default async function DashboardPage() {
     supabase
       .from("recurring_commitments")
       .select(
-        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at,icon_emoji,icon_image_path",
       )
       .eq("user_id", user.id)
       .eq("status", "active")
@@ -392,21 +394,10 @@ export default async function DashboardPage() {
                   className="flex min-w-0 items-center gap-3 py-3.5"
                   key={transaction.id}
                 >
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-neutral-100">
-                    {transaction.type === "transfer" ? (
-                      <ArrowRight aria-hidden="true" className="size-4" />
-                    ) : transaction.type === "income" ? (
-                      <ArrowDownLeft
-                        aria-hidden="true"
-                        className="size-4 text-emerald-700"
-                      />
-                    ) : (
-                      <ArrowUpRight
-                        aria-hidden="true"
-                        className="size-4 text-red-600"
-                      />
-                    )}
-                  </span>
+                  <TransactionIcon
+                    transaction={transaction}
+                    variant="dashboard"
+                  />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
                       {transaction.description}
@@ -450,6 +441,9 @@ export default async function DashboardPage() {
               <div className="mt-3 divide-y divide-emerald-950/10">
                 {upcoming.map((item) => (
                   <div className="flex items-center gap-3 py-3" key={item.id}>
+                    {(item.icon_emoji || item.icon_image_path) && (
+                      <RecurringIcon item={item} variant="dashboard" />
+                    )}
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">
                         {item.name}

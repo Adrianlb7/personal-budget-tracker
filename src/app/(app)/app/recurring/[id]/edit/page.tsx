@@ -15,7 +15,7 @@ export default async function EditRecurringPage({
   const { data, error } = await supabase
     .from("recurring_commitments")
     .select(
-      "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+      "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at,icon_emoji,icon_image_path",
     )
     .eq("id", id)
     .eq("user_id", user.id)

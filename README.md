@@ -71,6 +71,8 @@ The profile migration creates a private profile automatically for every new Auth
 
 Before using emoji or image icons on an existing project, apply [`supabase/migrations/20261118000000_add_account_icons.sql`](supabase/migrations/20261118000000_add_account_icons.sql) in the Supabase SQL editor or through your configured migration workflow. It adds the icon fields and a private PNG Storage bucket. Apply it before deploying the matching app code, because the account and dashboard queries read the new fields.
 
+For recurring commitment and transaction icons, apply [recurring migration](supabase/migrations/20261118020000_add_recurring_icons.sql) and [transaction migration](supabase/migrations/20261118030000_add_transaction_icons.sql) in that order before deploying the matching app code. These add optional icon fields and private image storage; existing items keep their default icons.
+
 ### Verification
 
 ```bash

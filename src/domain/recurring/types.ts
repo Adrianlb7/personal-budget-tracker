@@ -15,6 +15,8 @@ export type RecurringCommitment = {
   ends_on: string | null;
   frequency: RecurringFrequency;
   id: string;
+  icon_emoji: string | null;
+  icon_image_path: string | null;
   installment_count: number | null;
   installments_completed: number | null;
   kind: RecurringKind;

@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useState,
+  type FormEvent,
+} from "react";
+import { AccountIconPicker } from "@/components/accounts/account-icon-picker";
 import {
   createRecurringCommitment,
   updateRecurringCommitment,
@@ -22,13 +28,24 @@ export function RecurringForm({
     ? updateRecurringCommitment.bind(null, commitment.id)
     : createRecurringCommitment;
   const [state, action, pending] = useActionState(submitAction, {});
+  const [iconImage, setIconImage] = useState<File | null>(null);
   const installment = kind === "external_installment";
   const today = new Date().toISOString().slice(0, 10);
   const [hasEndDate, setHasEndDate] = useState(Boolean(commitment?.ends_on));
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!iconImage) return;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.set("iconImage", iconImage);
+    startTransition(() => action(formData));
+  }
+
   return (
     <form
       action={action}
       className="mt-8 max-w-2xl space-y-6 rounded-[2rem] border border-black/[0.06] bg-white p-6 shadow-sm sm:p-8"
+      onSubmit={handleSubmit}
     >
       <input name="kind" type="hidden" value={kind} />
       <input name="paymentMethod" type="hidden" value="external_expense" />
@@ -44,6 +61,20 @@ export function RecurringForm({
         }
         required={false}
       />
+      <div>
+        <AccountIconPicker
+          entityLabel="Recurring item"
+          initialEmoji={commitment?.icon_emoji}
+          initialImageUrl={
+            commitment?.icon_image_path
+              ? `/api/item-icons/recurring/${commitment.id}?v=${encodeURIComponent(commitment.icon_image_path)}`
+              : null
+          }
+          onImageFileChange={setIconImage}
+        />
+        <ErrorText message={state.errors?.iconEmoji?.[0]} />
+        <ErrorText message={state.errors?.iconImage?.[0]} />
+      </div>
       <div>
         <Field
           defaultValue={commitment?.amount}

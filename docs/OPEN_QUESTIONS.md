@@ -32,6 +32,7 @@
 
 - Should appearance preferences eventually sync between devices? Phase 016 keeps the choice local to each browser.
 - Should account emojis use identical Apple artwork on non-Apple devices? Phase 018 uses the device's native emoji font, which displays Apple artwork on iPhone and Mac without downloading third-party emoji images.
+- Should a transaction recorded by paying a recurring commitment inherit the plan's custom icon? Phase 019 keeps payment transactions independent, with their existing transaction-type icon unless one is chosen for the transaction itself.
 
 ## Authentication
 

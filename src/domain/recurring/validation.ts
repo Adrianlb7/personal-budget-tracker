@@ -77,6 +77,11 @@ export const recurringSchema = z
   }));
 
 export type RecurringFormState = {
-  errors?: Partial<Record<keyof z.input<typeof recurringSchema>, string[]>>;
+  errors?: Partial<
+    Record<
+      keyof z.input<typeof recurringSchema> | "iconEmoji" | "iconImage",
+      string[]
+    >
+  >;
   message?: string;
 };

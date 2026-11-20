@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
+import { AccountIconPicker } from "@/components/accounts/account-icon-picker";
 import type { Account } from "@/domain/accounts/types";
 import { exceedsAvailableBalance } from "@/domain/accounts/balance";
 import { createTransfer, updateTransfer } from "@/domain/transactions/actions";
@@ -21,6 +28,7 @@ export function TransferForm({
     ? updateTransfer.bind(null, transaction.id)
     : createTransfer;
   const [state, action, pending] = useActionState(submitAction, {});
+  const [iconImage, setIconImage] = useState<File | null>(null);
   const [sourceId, setSourceId] = useState(transaction?.account_id ?? "");
   const [amount, setAmount] = useState(transaction?.amount ?? "");
   const initialRate =
@@ -61,10 +69,19 @@ export function TransferForm({
       )
     : accounts.filter((account) => account.currency !== "BTC");
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!iconImage) return;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.set("iconImage", iconImage);
+    startTransition(() => action(formData));
+  }
+
   return (
     <form
       action={action}
       className="mt-8 max-w-2xl space-y-6 rounded-3xl border bg-white p-6 shadow-sm sm:p-8"
+      onSubmit={handleSubmit}
     >
       <Field
         defaultValue={transaction?.description}
@@ -74,6 +91,20 @@ export function TransferForm({
         placeholder="Move to savings"
         required={false}
       />
+      <div>
+        <AccountIconPicker
+          entityLabel="Transaction"
+          initialEmoji={transaction?.icon_emoji}
+          initialImageUrl={
+            transaction?.icon_image_path
+              ? `/api/item-icons/transactions/${transaction.id}`
+              : null
+          }
+          onImageFileChange={setIconImage}
+        />
+        <ErrorText message={state.errors?.iconEmoji?.[0]} />
+        <ErrorText message={state.errors?.iconImage?.[0]} />
+      </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <AccountSelect
           accounts={accounts.filter((account) => account.currency !== "BTC")}

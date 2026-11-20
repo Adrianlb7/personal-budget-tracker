@@ -1,8 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useState,
+  type FormEvent,
+} from "react";
 import { CategoryCombobox } from "@/components/categories/category-combobox";
+import { AccountIconPicker } from "@/components/accounts/account-icon-picker";
 import type { Account } from "@/domain/accounts/types";
 import { exceedsAvailableBalance } from "@/domain/accounts/balance";
 import {
@@ -28,6 +34,7 @@ export function TransactionForm({
     ? updateTransaction.bind(null, transaction.id)
     : createTransaction;
   const [state, action, pending] = useActionState(submitAction, {});
+  const [iconImage, setIconImage] = useState<File | null>(null);
   const [accountId, setAccountId] = useState(transaction?.account_id ?? "");
   const [amount, setAmount] = useState(transaction?.amount ?? "");
   const selectedAccount = accounts.find((account) => account.id === accountId);
@@ -48,10 +55,19 @@ export function TransactionForm({
   );
   const title = type === "income" ? "Income" : "Expense";
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    if (!iconImage) return;
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    formData.set("iconImage", iconImage);
+    startTransition(() => action(formData));
+  }
+
   return (
     <form
       action={action}
       className="mt-8 max-w-2xl space-y-6 rounded-3xl border bg-white p-6 shadow-sm sm:p-8"
+      onSubmit={handleSubmit}
     >
       <input name="type" type="hidden" value={type} />
       <Field
@@ -62,6 +78,20 @@ export function TransactionForm({
         placeholder={type === "income" ? "September salary" : "Groceries"}
         required={false}
       />
+      <div>
+        <AccountIconPicker
+          entityLabel="Transaction"
+          initialEmoji={transaction?.icon_emoji}
+          initialImageUrl={
+            transaction?.icon_image_path
+              ? `/api/item-icons/transactions/${transaction.id}`
+              : null
+          }
+          onImageFileChange={setIconImage}
+        />
+        <ErrorText message={state.errors?.iconEmoji?.[0]} />
+        <ErrorText message={state.errors?.iconImage?.[0]} />
+      </div>
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className="text-sm font-medium" htmlFor="accountId">

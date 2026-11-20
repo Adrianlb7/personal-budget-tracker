@@ -27,7 +27,7 @@ export async function GET() {
           supabase
             .from("account_details")
             .select(
-              "id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at",
+              "id,name,type,currency,opening_balance,current_balance,archived_at,created_at,updated_at,icon_emoji,icon_image_path",
             )
             .eq("user_id", userId)
             .order("created_at")
@@ -37,7 +37,7 @@ export async function GET() {
           supabase
             .from("transaction_details")
             .select(
-              "id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
+              "id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency,icon_emoji,icon_image_path",
             )
             .eq("user_id", userId)
             .order("date", { ascending: false })
@@ -49,7 +49,7 @@ export async function GET() {
           supabase
             .from("recurring_commitments")
             .select(
-              "id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+              "id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at,icon_emoji,icon_image_path",
             )
             .eq("user_id", userId)
             .order("created_at")

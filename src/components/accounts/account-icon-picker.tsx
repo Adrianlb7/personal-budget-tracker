@@ -36,10 +36,12 @@ function clampOffset(
 }
 
 export function AccountIconPicker({
+  entityLabel = "Account",
   initialEmoji,
   initialImageUrl,
   onImageFileChange,
 }: {
+  entityLabel?: "Account" | "Recurring item" | "Transaction";
   initialEmoji?: string | null;
   initialImageUrl?: string | null;
   onImageFileChange: (file: File | null) => void;
@@ -245,7 +247,7 @@ export function AccountIconPicker({
           }}
         >
           <div
-            aria-label="Choose account icon"
+            aria-label={`Choose ${entityLabel.toLowerCase()} icon`}
             aria-modal="true"
             className="account-icon-dialog"
             onKeyDown={(event) => {
@@ -255,8 +257,8 @@ export function AccountIconPicker({
           >
             <div className="account-icon-dialog-header">
               <div>
-                <h2>Account icon</h2>
-                <p>Make this account easy to spot.</p>
+                <h2>{entityLabel} icon</h2>
+                <p>Make this {entityLabel.toLowerCase()} easy to spot.</p>
               </div>
               <button
                 aria-label="Close icon picker"

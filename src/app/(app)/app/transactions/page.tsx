@@ -1,15 +1,7 @@
 import Link from "next/link";
-import {
-  ArrowDownLeft,
-  ArrowRightLeft,
-  ArrowUpRight,
-  Plus,
-  Pencil,
-  RefreshCw,
-  Repeat2,
-  Trash2,
-} from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { ConfirmActionButton } from "@/components/shared/confirm-action-button";
+import { TransactionIcon } from "@/components/transactions/transaction-icon";
 import { deleteTransaction } from "@/domain/transactions/actions";
 import { calculateTransactionTotals } from "@/domain/transactions/calculations";
 import type { TransactionDetail } from "@/domain/transactions/types";
@@ -17,13 +9,18 @@ import { requireUser } from "@/lib/auth/require-user";
 import { formatMoney } from "@/lib/money/format";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function TransactionsPage() {
+export default async function TransactionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ icon?: string }>;
+}) {
+  const { icon } = await searchParams;
   const user = await requireUser();
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("transaction_details")
     .select(
-      "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
+      "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency,icon_emoji,icon_image_path",
     )
     .eq("user_id", user.id)
     .order("date", { ascending: false })
@@ -47,7 +44,7 @@ export default async function TransactionsPage() {
             Income and expenses remain in their original account currency.
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <ActionLink
             href="/app/transactions/new?type=income"
             label="Add income"
@@ -63,6 +60,16 @@ export default async function TransactionsPage() {
           />
         </div>
       </div>
+
+      {icon === "failed" && (
+        <p
+          className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+          role="alert"
+        >
+          Transaction saved, but its custom icon could not be saved. Edit the
+          transaction to try again.
+        </p>
+      )}
 
       {currencies.length > 0 && (
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -91,38 +98,12 @@ export default async function TransactionsPage() {
           {transactions.map((transaction) => {
             const income = transaction.type === "income";
             const transfer = transaction.type === "transfer";
-            const installment =
-              transaction.metadata.recurring_kind === "installment";
-            const subscription =
-              transaction.metadata.recurring_kind === "subscription";
-            const Icon = installment
-              ? Repeat2
-              : subscription
-                ? RefreshCw
-                : transfer
-                  ? ArrowRightLeft
-                  : income
-                    ? ArrowDownLeft
-                    : ArrowUpRight;
-            const iconTone = installment
-              ? "bg-violet-50 text-violet-700"
-              : subscription
-                ? "bg-amber-50 text-amber-700"
-                : transfer
-                  ? "bg-blue-50 text-blue-700"
-                  : income
-                    ? "bg-emerald-50 text-emerald-700"
-                    : "bg-red-50 text-red-700";
             return (
               <article
                 className="flex min-w-0 flex-wrap items-center gap-3 border-b p-4 last:border-b-0 sm:flex-nowrap sm:gap-4 sm:p-5"
                 key={transaction.id}
               >
-                <span
-                  className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${iconTone}`}
-                >
-                  <Icon aria-hidden="true" className="size-5" />
-                </span>
+                <TransactionIcon transaction={transaction} />
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate font-medium">
                     {transaction.description}
@@ -205,7 +186,7 @@ function ActionLink({
 }) {
   return (
     <Link
-      className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium ${primary ? "bg-emerald-900 text-white" : "border bg-white text-neutral-700"}`}
+      className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium whitespace-nowrap ${primary ? "bg-emerald-900 text-white" : "border bg-white text-neutral-700"}`}
       href={href}
     >
       <Plus aria-hidden="true" className="size-4" />

@@ -51,6 +51,11 @@ export const transferSchema = z
   });
 
 export type TransferFormState = {
-  errors?: Partial<Record<keyof z.input<typeof transferSchema>, string[]>>;
+  errors?: Partial<
+    Record<
+      keyof z.input<typeof transferSchema> | "iconEmoji" | "iconImage",
+      string[]
+    >
+  >;
   message?: string;
 };

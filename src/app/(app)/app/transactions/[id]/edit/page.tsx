@@ -20,7 +20,7 @@ export default async function EditTransactionPage({
       supabase
         .from("transaction_details")
         .select(
-          "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency",
+          "id,user_id,type,date,description,notes,metadata,created_at,account_id,account_name,category_id,category_name,direction,amount,currency,destination_account_id,destination_account_name,destination_amount,destination_currency,icon_emoji,icon_image_path",
         )
         .eq("id", id)
         .eq("user_id", user.id)

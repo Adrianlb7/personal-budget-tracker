@@ -3,15 +3,14 @@ import {
   CalendarClock,
   CirclePause,
   CirclePlay,
-  CreditCard,
   ListChecks,
   Plus,
-  ReceiptText,
   Pencil,
   XCircle,
 } from "lucide-react";
 import { CompletionMessage } from "@/components/recurring/completion-message";
 import { PayButton } from "@/components/recurring/pay-button";
+import { RecurringIcon } from "@/components/recurring/recurring-icon";
 import type { Account } from "@/domain/accounts/types";
 import { setRecurringStatus } from "@/domain/recurring/actions";
 import {
@@ -42,7 +41,7 @@ export default async function RecurringPage({
     supabase
       .from("recurring_commitments")
       .select(
-        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at",
+        "id,user_id,kind,name,account_id,destination_account_id,payment_method,amount,currency,frequency,starts_on,next_due_on,ends_on,installment_count,installments_completed,status,created_at,updated_at,icon_emoji,icon_image_path",
       )
       .eq("user_id", user.id)
       .eq("status", status)
@@ -155,13 +154,10 @@ function CommitmentCard({
   paymentAccounts: Account[];
 }) {
   const progress = installmentProgress(item);
-  const Icon = item.kind === "subscription" ? CreditCard : ReceiptText;
   return (
     <article className="min-w-0 rounded-[1.7rem] border border-black/[0.06] bg-white p-6 shadow-[0_16px_45px_-34px_rgba(0,0,0,0.3)]">
       <div className="flex items-start gap-4">
-        <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
-          <Icon className="size-5" />
-        </span>
+        <RecurringIcon item={item} />
         <div className="min-w-0 flex-1">
           <p className="font-semibold break-words">{item.name}</p>
           <p className="mt-1 text-sm text-neutral-400 capitalize">

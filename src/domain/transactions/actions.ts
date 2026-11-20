@@ -15,6 +15,11 @@ import {
   type TransactionFormState,
 } from "./validation";
 import { transferSchema, type TransferFormState } from "./transfer-validation";
+import { parseTransactionIconSelection } from "./icon-selection";
+import { removeTransactionIcon, saveTransactionIcon } from "./icon-actions";
+
+const transactionsUrl = "/app/transactions";
+const iconFailureUrl = "/app/transactions?icon=failed";
 
 export async function createTransaction(
   _state: TransactionFormState,
@@ -34,6 +39,8 @@ export async function createTransaction(
   });
 
   if (!result.success) return { errors: result.error.flatten().fieldErrors };
+  const iconInput = await parseTransactionIconSelection(formData);
+  if (!("selection" in iconInput)) return iconInput;
 
   const user = await requireUser();
   const supabase = await createClient();
@@ -67,7 +74,7 @@ export async function createTransaction(
       .eq("user_id", user.id);
     if (restoreError) return { message: "The category could not be restored." };
   }
-  const { error } = await supabase.rpc("create_financial_transaction", {
+  const { data, error } = await supabase.rpc("create_financial_transaction", {
     p_account_id: result.data.accountId,
     p_amount: result.data.amount,
     p_category_name: existingCategory?.name ?? requestedCategory,
@@ -84,9 +91,17 @@ export async function createTransaction(
         : "The transaction could not be saved. Please try again.",
     };
 
-  revalidatePath("/app/accounts");
-  revalidatePath("/app/transactions");
-  redirect("/app/transactions");
+  const iconSaved =
+    iconInput.selection.kind === "clear" ||
+    (typeof data === "string" &&
+      (await saveTransactionIcon(
+        supabase,
+        user.id,
+        data,
+        iconInput.selection,
+      )));
+  revalidateTransactionPaths();
+  redirect(iconSaved ? transactionsUrl : iconFailureUrl);
 }
 
 export async function updateTransaction(
@@ -107,7 +122,9 @@ export async function updateTransaction(
     type: formData.get("type"),
   });
   if (!result.success) return { errors: result.error.flatten().fieldErrors };
-  await requireUser();
+  const iconInput = await parseTransactionIconSelection(formData);
+  if (!("selection" in iconInput)) return iconInput;
+  const user = await requireUser();
   const supabase = await createClient();
   const requestedCategory = normalizeCategoryName(result.data.category);
   const { data, error } = await supabase.rpc("update_financial_transaction", {
@@ -126,17 +143,30 @@ export async function updateTransaction(
         ? "This expense is higher than the account's available balance."
         : (error?.message ?? "The transaction could not be updated."),
     };
+  const iconSaved = await saveTransactionIcon(
+    supabase,
+    user.id,
+    transactionId,
+    iconInput.selection,
+  );
   revalidateTransactionPaths();
-  redirect("/app/transactions");
+  redirect(iconSaved ? transactionsUrl : iconFailureUrl);
 }
 
 export async function deleteTransaction(transactionId: string) {
-  await requireUser();
+  const user = await requireUser();
   const supabase = await createClient();
+  const { data: transaction } = await supabase
+    .from("transactions")
+    .select("icon_image_path")
+    .eq("id", transactionId)
+    .eq("user_id", user.id)
+    .maybeSingle();
   const { data, error } = await supabase.rpc("delete_financial_transaction", {
     p_transaction_id: transactionId,
   });
   if (error || !data) throw new Error("The transaction could not be deleted.");
+  await removeTransactionIcon(supabase, transaction?.icon_image_path ?? null);
   revalidatePath("/app/accounts");
   revalidatePath("/app/transactions");
 }
@@ -156,6 +186,8 @@ export async function createTransfer(
   });
 
   if (!result.success) return { errors: result.error.flatten().fieldErrors };
+  const iconInput = await parseTransactionIconSelection(formData);
+  if (!("selection" in iconInput)) return iconInput;
 
   const user = await requireUser();
   const supabase = await createClient();
@@ -185,7 +217,7 @@ export async function createTransfer(
       !decimal(result.data.exchangeRate).greaterThan(0)
     )
       return { message: "Enter your bank's CLP per USD rate." };
-    const { error } = await supabase.rpc("create_clp_usd_transfer", {
+    const { data, error } = await supabase.rpc("create_clp_usd_transfer", {
       p_clp_amount: result.data.amount,
       p_clp_per_usd: result.data.exchangeRate,
       p_date: result.data.date,
@@ -200,16 +232,23 @@ export async function createTransfer(
           ? "This transfer is higher than the source account's available balance."
           : "The converted transfer could not be saved.",
       };
-    revalidatePath("/app");
-    revalidatePath("/app/accounts");
-    revalidatePath("/app/transactions");
-    redirect("/app/transactions");
+    const iconSaved =
+      iconInput.selection.kind === "clear" ||
+      (typeof data === "string" &&
+        (await saveTransactionIcon(
+          supabase,
+          user.id,
+          data,
+          iconInput.selection,
+        )));
+    revalidateTransactionPaths();
+    redirect(iconSaved ? transactionsUrl : iconFailureUrl);
   }
   if (source.currency !== "USD" || destination.currency !== "USD")
     return {
       message: "Only USD transfers and CLP to USD conversions are supported.",
     };
-  const { error } = await supabase.rpc("create_account_transfer", {
+  const { data, error } = await supabase.rpc("create_account_transfer", {
     p_amount: result.data.amount,
     p_date: result.data.date,
     p_description: result.data.description,
@@ -227,9 +266,17 @@ export async function createTransfer(
     return { message };
   }
 
-  revalidatePath("/app/accounts");
-  revalidatePath("/app/transactions");
-  redirect("/app/transactions");
+  const iconSaved =
+    iconInput.selection.kind === "clear" ||
+    (typeof data === "string" &&
+      (await saveTransactionIcon(
+        supabase,
+        user.id,
+        data,
+        iconInput.selection,
+      )));
+  revalidateTransactionPaths();
+  redirect(iconSaved ? transactionsUrl : iconFailureUrl);
 }
 
 export async function updateTransfer(
@@ -247,7 +294,9 @@ export async function updateTransfer(
     sourceAccountId: formData.get("sourceAccountId"),
   });
   if (!result.success) return { errors: result.error.flatten().fieldErrors };
-  await requireUser();
+  const iconInput = await parseTransactionIconSelection(formData);
+  if (!("selection" in iconInput)) return iconInput;
+  const user = await requireUser();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("update_account_transfer", {
     p_amount: result.data.amount,
@@ -265,8 +314,14 @@ export async function updateTransfer(
         ? "This transfer is higher than the source account's available balance."
         : (error?.message ?? "The transfer could not be updated."),
     };
+  const iconSaved = await saveTransactionIcon(
+    supabase,
+    user.id,
+    transactionId,
+    iconInput.selection,
+  );
   revalidateTransactionPaths();
-  redirect("/app/transactions");
+  redirect(iconSaved ? transactionsUrl : iconFailureUrl);
 }
 
 function revalidateTransactionPaths() {

@@ -19,6 +19,8 @@ export type TransactionDetail = {
   destination_amount: string | null;
   destination_currency: Currency | null;
   id: string;
+  icon_emoji?: string | null;
+  icon_image_path?: string | null;
   metadata: Record<string, unknown>;
   notes: string | null;
   type: TransactionType;
